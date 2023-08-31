@@ -15,9 +15,9 @@ async def main():
     controller = moteus.Controller(id=args.id)
 
     while True:
-        state = controller.query()
+        state = controller.make_query()
 
-        print(f'Position: {state[moteus.Register.POSITION]}')
-        print(f'Absolute Position : {state[moteus.Register.POSITION]}')
+        print(f'Position: {state.data[moteus.Register.POSITION]}')
+        print(f'Absolute Position : {state.data[moteus.Register.POSITION]}')
 
 asyncio.run(main())
