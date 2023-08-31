@@ -18,8 +18,12 @@ stream = moteus.Stream(controller=c1)
 async def load_config_file():
     with open(args.filename, 'r') as motor_config:
         lines = [line.strip() for line in motor_config.readlines()]
-        for line in lines:
-            result = await stream.command(line.encode('latin1'))
-            print(result)
+        for num, line in enumerate(lines):
+            try:
+                result = await stream.command(line.encode('latin1'))
+                print(f"Success for option #{num} ({line}): {result}")
+            except:
+                print(f"Failure for option #{num} ({line})")
+            
 
 asyncio.run(load_config_file())
