@@ -10,6 +10,9 @@ class Motor:
     def update_status(self, state: Dict) -> None:
         self._position = state.values[moteus.Register.POSITION]
     
+    def zero_position(self) -> None:
+        self.offset = self._position * 360
+    
     def make_query(self) -> moteus.Command:
         return self.controller.make_brake(query=True)
     
