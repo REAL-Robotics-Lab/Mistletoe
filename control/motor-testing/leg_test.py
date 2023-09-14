@@ -18,6 +18,18 @@ transport = moteus.Fdcanusb()
 controller1 = moteus.Controller(id=args.id_hip)
 controller2 = moteus.Controller(id=args.id_knee)
 
+async def get_offsets():
+    input("Move leg to zero position.")
+    command1 = controller1.make_query()
+    command2 = controller2.make_query()
+
+    states = await transport.cycle([
+        command1,
+        command2
+    ])
+
+    
+
 async def main():
 
     motor1 =  MotorState()
@@ -25,8 +37,8 @@ async def main():
 
     while True:
         
-        command1 = controller1.make_position(position=0.5, query=True, maximum_torque=1.0, velocity=0.0, velocity_limit=0.5, accel_limit=2.0)
-        command2 = controller2.make_position(position=0.5, query=True, maximum_torque=1.0, velocity=0.0, velocity_limit=0.5, accel_limit=2.0)
+        command1 = controller1.make_query()
+        command2 = controller2.make_query()
         
         states = await transport.cycle([
             command1,

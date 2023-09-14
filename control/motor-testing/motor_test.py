@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('id', help='CAN ID', type=int)
 parser.add_argument('angle', help='Angle to set the motor to', type=float)
 args = parser.parse_args()
+
 controller: moteus.Controller = moteus.Controller(id=args.id)
 motor: MotorState = MotorState()
 transport: moteus.Transport = moteus.get_singleton_transport()
