@@ -20,7 +20,7 @@ transport: moteus.Transport = moteus.get_singleton_transport()
 
 async def main():
     while True:
-        command = controller.make_position(position=None, stop_position=args.angle / 360,query=True, maximum_torque=1, velocity=0.1,watchdog_timeout=None)
+        command = controller.make_position(position=0.5, query=True, maximum_torque=1.0, velocity=0.0, velocity_limit=0.5, accel_limit=2.0)
         states: [moteus.Command] = await transport.cycle([command])
 
         motor.update(states[0])
