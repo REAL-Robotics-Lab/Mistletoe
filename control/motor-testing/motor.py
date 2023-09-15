@@ -6,6 +6,11 @@ class Motor:
     _position: float
     offset: float
     controller: moteus.Controller
+    
+    def __init__(self, controller, offset=0) -> None:
+        self.controller = controller
+        self.offset = offset
+        self._position = 0
 
     def update_status(self, state: Dict) -> None:
         self._position = state.values[moteus.Register.POSITION]
@@ -18,12 +23,15 @@ class Motor:
     
     def make_position(self, **kwargs) -> moteus.Command:
         return self.controller.make_position(query=True, **kwargs)
+    
+    def make_stop(self) -> moteus.Command:
+        return self.controller.make_stop()
 
     def get_position(self) -> float:
         return self._position - (self.offset/360)
     
     def get_angle(self) -> float:
-        return self._position*360 - self.offset
+        return self.get_position()*360
 
     def set_offset(self, offset_deg) -> float:
         self.offset = offset_deg
