@@ -19,9 +19,21 @@ motor1 = Motor(moteus.Controller(id=args.id_hip))
 motor2 = Motor(moteus.Controller(id=args.id_knee))
 
 async def main():
+    start_time = time.time()
+    while time.time() - start_time < 4:
+        command1 = motor1.make_position(position=args.angle_hip/360, maximum_torque=9, velocity=0.0, velocity_limit=0.05, accel_limit=2.0)
+        
+        states = await transport.cycle([
+            command1
+        ])
+
+        motor1.update_status(states[0])
+        print(f'Motor 1: \n{motor1}')
+
+        time.sleep(0.05)
     while True:
-        command1 = motor1.make_position(position=args.angle_hip/360, maximum_torque=1.0, velocity=0.0, velocity_limit=0.5, accel_limit=2.0)
-        command2 = motor2.make_position(position=args.angle_knee/360, maximum_torque=1.0, velocity=0.0, velocity_limit=0.5, accel_limit=2.0)
+        command1 = motor1.make_position(position=args.angle_hip/360, maximum_torque=9, velocity=0.0, velocity_limit=0.05, accel_limit=2.0)
+        command2 = motor2.make_position(position=args.angle_knee/360, maximum_torque=9, velocity=0.0, velocity_limit=0.05, accel_limit=2.0)
         
         states = await transport.cycle([
             command1,
