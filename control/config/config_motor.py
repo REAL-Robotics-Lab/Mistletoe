@@ -1,5 +1,9 @@
 # Load configuration file and configure motor
 
+import sys
+sys.path.append('../pihat')
+import util
+
 import moteus
 import asyncio
 import argparse
@@ -12,7 +16,9 @@ parser.add_argument('filename', help='Configuration file path', type=str)
 parser.add_argument('id', help='CAN ID', type=int)
 args = parser.parse_args()
 
-c1 = moteus.Controller(id=args.id)
+transport = util.generate_transport()
+
+c1 = moteus.Controller(id=args.id,transport=transport)
 stream = moteus.Stream(controller=c1)
 
 async def load_config_file():
