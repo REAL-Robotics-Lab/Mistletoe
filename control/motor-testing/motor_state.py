@@ -5,6 +5,9 @@ class MotorState:
     position: float
     offset: float
 
+    def __init__(self, offset=0):
+        self.offset = offset
+
     def update(self, state: Dict):
         self.position = state.values[moteus.Register.POSITION]
 
@@ -12,7 +15,7 @@ class MotorState:
         return self.position * 360
     
     def get_offsetted_angle(self, angle):
-        return angle - self.offset
+        return angle + self.offset
     
     def __repr__(self) -> str:
         return f'Position: {self.get_angle()}'
