@@ -27,6 +27,7 @@ async def load_config_file():
         for num, line in enumerate(lines):
             try:
                 result = await stream.command(line.encode('latin1'))
+                await transport.write(c1.make_diagnostic_read())
                 print(f"Success for option #{num} ({line}): {result}")
             except:
                 print(f"Failure for option #{num} ({line})")
