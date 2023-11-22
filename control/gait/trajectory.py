@@ -113,17 +113,17 @@ class Trajectory:
 # example use
 
 # in mm
-leg_center_dist_mm = 175.87
-leg_center_dist_m = leg_center_dist_mm / 1000
+# leg_center_dist_mm = 175.87
+# leg_center_dist_m = leg_center_dist_mm / 1000
 
-swing_radius_m = 0.05
+# swing_radius_m = 0.05
 
-drag_time = 0.5
-swing_time = 0.5
-refresh_rate = 0.05
-dist_to_ground = -0.25
+# drag_time = 0.5
+# swing_time = 0.5
+# refresh_rate = 0.05
+# dist_to_ground = -0.25
 
-trajectory = Trajectory(refresh_rate, leg_center_dist_m)
-trajectory.set_half_circle(dist_to_ground, drag_time, swing_time, swing_radius=swing_radius_m)
-print(trajectory.get_next_angles_revolutions())
-trajectory.plot()
+# trajectory = Trajectory(refresh_rate, leg_center_dist_m)
+# trajectory.set_half_circle(dist_to_ground, drag_time, swing_time, swing_radius=swing_radius_m)
+# print(trajectory.get_next_angles_revolutions())
+# trajectory.plot()
