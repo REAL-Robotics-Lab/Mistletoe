@@ -124,7 +124,6 @@ class Motor:
     Run update() once per cycle.
 """
 
-
 class MotorManager:
     transport: moteus.Transport
     motors: dict[int, Motor]
@@ -140,6 +139,10 @@ class MotorManager:
         except KeyError:
             print(f"Error: Motor #{id} not found.")
             return None
+
+    def stop_motors(self):
+        for motor in self.motors.values():
+            motor.stop()
 
     def update(self):
         # Cycle the motors
