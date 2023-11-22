@@ -4,7 +4,7 @@ from motor import MotorManager, Motor
 import util
 from leg import Leg
 from trajectory import HalfCircleTrajectory, StandingTrajectory
-
+import traceback
 motor_manager = MotorManager(motor_ids=[11,12,21,22,31,32,41,42])
 
 
@@ -20,19 +20,20 @@ async def main():
     standing_trajectory = StandingTrajectory(leg_center_dist, dist_to_ground)
 
     while True:
-        leg.update()
-        motor_manager.update()
         leg.set_trajectory(running_trajectory)
         leg.set_trajectory(standing_trajectory)
-        time.sleep(0.01)
+
+        leg.update()
+        await motor_manager.update()
+        time.sleep(1)
 
 async def clean():
-    motor_manager.stop_motors()
+    await motor_manager.stop_motors()
 
 try:
     asyncio.run(main())
 except Exception as error:
-    print(error)
+    print(traceback.format_exc())
     asyncio.run(clean())
 except KeyboardInterrupt:
     print('\nExit motor testing')

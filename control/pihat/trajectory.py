@@ -27,17 +27,22 @@ class PredeterminedTrajectory(Trajectory):
         self.finished = False
         self.angles, self.velocities = self.generate_trajectory()
 
+    def get_finished(self) -> bool:
+        return self.finished
+
     def get_next_state(self) -> tuple[tuple[float, float], tuple[float,float]]:
-        if self.counter == len(self.angles):
+        if self.counter >= len(self.angles):
             self.finished = True
+        
+        if self.finished == False:
+            self.counter += 1
+        else:
+            self.counter = 0
         
         angle = self.angles[self.counter]
         velocity = self.velocities[self.counter]
         
-        if self.finished == False:
-            counter += 1
-        else:
-            counter = 0
+
 
         return angle, velocity
     
@@ -96,10 +101,6 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
 
 
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:
-        print(self.num_setpoints)
-        print(self.num_setpoints_drag + self.num_setpoints_swing)
-        print(self.num_setpoints_drag)
-        print(self.num_setpoints_swing)
 
         trajectory_pos_x = 0
         trajectory_pos_y = self.dist_to_ground # init @ dist to ground
@@ -133,7 +134,6 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
                 angles.append((self.leg_ik.angles[0], self.leg_ik.angles[1]))
                 velocities.append((self.uniform_velocity, self.uniform_velocity))
                 
-                print(trajectory_pos_y)
 
             # print(theta)
             # print(self.swing_radius * math.sin(theta))
@@ -151,7 +151,7 @@ class StandingTrajectory(PredeterminedTrajectory):
         super().__init__(leg_center_distance)
     
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:
-        self.leg_ik.ee = [0, dist_to_ground, 0]
+        self.leg_ik.ee = [0, self.dist_to_ground, 0]
         velocity = (0,0)
         angle = (self.leg_ik.angles[0], self.leg_ik.angles[1])
         return [angle], [velocity]

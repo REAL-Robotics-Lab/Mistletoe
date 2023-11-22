@@ -1,7 +1,7 @@
 import moteus
 import util
 from enum import Enum
-from typing import TypeAlias
+# from typing import TypeAlias
 
 
 class ControlMode(Enum):
@@ -28,6 +28,8 @@ class Motor:
     max_velocity: float
     max_accel: float
 
+    id: int
+
     control_mode: ControlMode
 
     def update_status(self, status) -> None:
@@ -36,22 +38,18 @@ class Motor:
         elif self.control_mode == ControlMode.STOP:
             pass
 
-        self.status = status[moteus.Register.POSITION]
-        self.position = status[moteus.Register.VELOCITY]
-        self.desired_position = 0
-        self.position = 0
-        self.position_tolerance = 0
-        self.velocity = 0
-        self.max_torque = 0
-        self.max_velocity = 0
-        self.max_accel = 0
-        self.control_mode = ControlMode.STOP
+        self.status = status
+        self.position = status.values[moteus.Register.POSITION]
+        self.velocity = status.values[moteus.Register.VELOCITY]
+        
+    def get_status(self) -> str:
+        return f"Motor {self.id}: Pos: {self.position}, Velocity: {self.velocity}, Desired Pos: {self.desired_position}"
 
     def __init__(
         self,
         id: int,
         transport: moteus.Transport,
-        position_tolerance: float = 0.01,
+        position_tolerance: float = 0.05,
         max_torque: float = 4.0,
         max_velocity: float = 0.5,
         max_accel: float = 2.0,
@@ -61,6 +59,16 @@ class Motor:
         self.max_torque = max_torque
         self.max_velocity = max_velocity
         self.max_accel = max_accel
+        self.current_command = self.controller.make_query()
+        self.control_mode = ControlMode.STOP
+        self.desired_position = 0
+        self.position = 0
+        self.position_tolerance = position_tolerance
+        self.velocity = 0
+        self.max_torque = max_torque
+        self.max_velocity = max_velocity
+        self.max_accel = max_accel
+        self.id = id
 
     def set_position(
         self,
@@ -88,6 +96,8 @@ class Motor:
         self.desired_position = position
         self.control_mode = ControlMode.POSITION_CONTROL
 
+        print(f"making position ({self.id}): {position}, {target_velocity}")
+
         # Set current command to position control
         self.current_command = self.controller.make_position(
             position=position,
@@ -104,14 +114,15 @@ class Motor:
             query=True,
         )
 
-    def stop(self):
+    async def stop(self):
         self.current_command = self.controller.make_stop
-        self.controller.set_stop()
+        await self.controller.set_stop()
 
     def get_current_command(self) -> moteus.Command:
         return self.current_command
 
     def at_desired_position(self) -> bool:
+        # print(f"Motor {self.id} Distance from desired position: {abs(self.position - self.desired_position)}, Tolerance: {self.position_tolerance}")
         return abs(self.position - self.desired_position) < self.position_tolerance
 
     def get_position(self) -> float:
@@ -141,14 +152,14 @@ class MotorManager:
             print(f"Error: Motor #{id} not found.")
             return None
 
-    def stop_motors(self):
+    async def stop_motors(self):
         for motor in self.motors.values():
-            motor.stop()
+            await motor.stop()
 
-    def update(self):
+    async def update(self):
         # Cycle the motors
-        statuses = self.transport.cycle(
-            [motor.get_command() for motor in self.motors.values()]
+        statuses = await self.transport.cycle(
+            [motor.get_current_command() for motor in self.motors.values()]
         )
 
         # Update the statuses
