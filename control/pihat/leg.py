@@ -31,6 +31,7 @@ class Leg:
         if self.trajectory.get_finished() == True:
             if self.next_trajectory != None:
                 self.set_trajectory(self.next_trajectory)
+        self.set_leg_position()
         
     def set_trajectory(self, trajectory: Trajectory):
         if self.trajectory.get_finished() == True:
