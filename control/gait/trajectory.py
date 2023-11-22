@@ -34,16 +34,6 @@ class Trajectory:
         trajectory_angles = []
         trajectory_pos = [[],[]]
 
-
-        # if a leg is out of phase it should stay in position until the other leg is at the top of the semicircle
-
-        if self.out_of_phase == True:
-            # lowk maybe shouldn't int but wtv
-            for i in range(int(drag_steps/2 + total_steps/2)):
-                trajectory_pos[0].append(trajectory_pos_x)
-                trajectory_pos[1].append(trajectory_pos_y)
-                trajectory_angles.append(self.leg.angles)
-
         for step_counter in range(total_steps):      
             if step_counter < drag_steps/2 or step_counter > drag_steps/2 + swing_steps: 
                 self.leg.ee = [trajectory_pos_x, trajectory_pos_y, 0]
@@ -79,32 +69,7 @@ class Trajectory:
         else:
             self.counter += 1
         return angles
-    
-    def plot(self):
-        self.check_trajectory_generated()
-        plt.scatter(self.trajectory_pos[0], self.trajectory_pos[1])
 
-        zeroes = []
-        joint1_x = []
-        joint1_y = []
-        joint2_x = []
-        joint2_y = []
-
-        for angle in self.trajectory_angles:
-            joint1_x.append(self.leg_center_distance * math.cos(angle[0]))
-            joint1_y.append(self.leg_center_distance * math.sin(angle[0]))
-            joint2_x.append(self.leg_center_distance * math.cos(angle[1] + angle[0]))
-            joint2_y.append(self.leg_center_distance * math.sin(angle[1] + angle[0]))
-            zeroes.append(0)
-
-        plt.quiver(zeroes, zeroes, joint1_x, joint1_y, color='b', angles='xy', scale_units='xy', scale=1)
-        plt.quiver(joint1_x, joint1_y, joint2_x, joint2_y, color='b', angles='xy', scale_units='xy', scale=1)
-
-        # TODO: prob should change limits to generalize to any trajectory 
-
-        plt.xlim(-0.15, 0.2) 
-        plt.ylim(-0.3, 0.05) 
-        plt.show()
     
     def check_trajectory_generated(self):
         if self.trajectory_pos == None or self.trajectory_angles == None:
