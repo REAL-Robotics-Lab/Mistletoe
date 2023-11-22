@@ -4,23 +4,30 @@ import math
 import tinyik
 
 class Trajectory(ABC):
+    @abstractmethod
+    def __init__(self) -> None:
+        pass
+
+    @abstractmethod
+    def get_next_state(self) -> tuple[tuple[float, float], tuple[float,float]]:
+        pass
+
+class PredeterminedTrajectory(Trajectory):
     finished: bool
     counter: int
 
-    num_setpoints: int
     leg_center_distance: float
 
     angles = []
     velocities = []
 
-    def __init__(self, num_setpoints, leg_center_distance) -> None:
+    def __init__(self, leg_center_distance) -> None:
         self.counter = 0
-        self.num_setpoints = num_setpoints
         self.leg_center_distance = leg_center_distance
         self.finished = False
         self.angles, self.velocities = self.generate_trajectory()
 
-    def get_next_state(self):
+    def get_next_state(self) -> tuple[tuple[float, float], tuple[float,float]]:
         if self.counter == len(self.angles):
             self.finished = True
         
@@ -61,7 +68,8 @@ class Trajectory(ABC):
         plt.ylim(-0.3, 0.05) 
         plt.show()
 
-class HalfCircleTrajectory(Trajectory):
+class HalfCircleTrajectory(PredeterminedTrajectory):
+    num_setpoints: int
 
     num_setpoints_swing: int
     num_setpoints_drag: int
@@ -72,6 +80,7 @@ class HalfCircleTrajectory(Trajectory):
     leg_ik: tinyik.Actuator
 
     def __init__(self, num_setpoints, leg_center_distance, dist_to_ground, swing_radius, uniform_velocity) -> None:
+        self.num_setpoints = num_setpoints
 
         self.num_setpoints_swing = int((math.pi / (2 + math.pi)) * num_setpoints) 
         self.num_setpoints_drag = int((2 / (2 + math.pi)) * num_setpoints)
@@ -83,7 +92,7 @@ class HalfCircleTrajectory(Trajectory):
 
         self.uniform_velocity = uniform_velocity
 
-        super().__init__(self.num_setpoints_drag + self.num_setpoints_swing, leg_center_distance)
+        super().__init__(leg_center_distance)
 
 
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:
@@ -130,6 +139,22 @@ class HalfCircleTrajectory(Trajectory):
             # print(self.swing_radius * math.sin(theta))
 
         return angles, velocities
+
+class StandingTrajectory(PredeterminedTrajectory):
+
+    dist_to_ground: float
+    leg_ik: tinyik.Actuator
+
+    def __init__(self, leg_center_distance, dist_to_ground) -> None:
+        self.dist_to_ground = dist_to_ground
+        self.leg_ik = tinyik.Actuator(['z', [leg_center_distance, 0., 0.], 'z', [leg_center_distance, 0., 0.]])
+        super().__init__(leg_center_distance)
+    
+    def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:
+        self.leg_ik.ee = [0, dist_to_ground, 0]
+        velocity = (0,0)
+        angle = (self.leg_ik.angles[0], self.leg_ik.angles[1])
+        return [angle], [velocity]
     
 if __name__ == "__main__":
     leg_center_dist_mm = 175.87
@@ -144,5 +169,6 @@ if __name__ == "__main__":
 
     # TODO: Fix issue where HalfCircleTrajectory only generates a quarter circle trajectory (ToT)
 
-    trajectory = HalfCircleTrajectory(50, leg_center_dist_m, dist_to_ground, swing_radius_m, 1)
+    # trajectory = HalfCircleTrajectory(50, leg_center_dist_m, dist_to_ground, swing_radius_m, 1)
+    trajectory = StandingTrajectory(leg_center_dist_m, dist_to_ground)
     trajectory.plot()
