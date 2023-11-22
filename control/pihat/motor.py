@@ -8,9 +8,10 @@ class ControlMode(Enum):
     POSITION_CONTROL = 1
     STOP = 2
 
+# rip 3.9
 
-Revolutions: TypeAlias = float
-RPS: TypeAlias = float
+# Revolutions: TypeAlias = float
+# RPS: TypeAlias = float
 
 
 class Motor:
@@ -19,10 +20,10 @@ class Motor:
 
     status: dict
 
-    desired_position: Revolutions
-    position: Revolutions
-    position_tolerance: Revolutions
-    velocity: RPS
+    desired_position: float
+    position: float
+    position_tolerance: float
+    velocity: float
     max_torque: float
     max_velocity: float
     max_accel: float
@@ -50,7 +51,7 @@ class Motor:
         self,
         id: int,
         transport: moteus.Transport,
-        position_tolerance: Revolutions = 0.01,
+        position_tolerance: float = 0.01,
         max_torque: float = 4.0,
         max_velocity: float = 0.5,
         max_accel: float = 2.0,
@@ -113,10 +114,10 @@ class Motor:
     def at_desired_position(self) -> bool:
         return abs(self.position - self.desired_position) < self.position_tolerance
 
-    def get_position(self) -> Revolutions:
+    def get_position(self) -> float:
         return self.position
 
-    def get_velocity(self) -> Revolutions:
+    def get_velocity(self) -> float:
         return self.velocity
 
 
