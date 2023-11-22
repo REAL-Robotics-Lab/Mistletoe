@@ -89,13 +89,15 @@ class HalfCircleTrajectory(Trajectory):
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:
         print(self.num_setpoints)
         print(self.num_setpoints_drag + self.num_setpoints_swing)
+        print(self.num_setpoints_drag)
+        print(self.num_setpoints_swing)
 
         trajectory_pos_x = 0
         trajectory_pos_y = self.dist_to_ground # init @ dist to ground
 
         self.leg_ik.ee = [trajectory_pos_x, trajectory_pos_y, 0]
         
-        angle_per_step = math.pi/self.num_setpoints
+        angle_per_step = math.pi/self.num_setpoints_swing
         theta = 0 
 
         angles = []
@@ -109,17 +111,24 @@ class HalfCircleTrajectory(Trajectory):
                 velocities.append((self.uniform_velocity, self.uniform_velocity))
                 
                 trajectory_pos_x += self.swing_radius/(self.num_setpoints_drag/2)
-
+                trajectory_pos_y = self.dist_to_ground
             else:
+                theta += angle_per_step
                 trajectory_pos_y = self.dist_to_ground + self.swing_radius * math.sin(theta)
+                # print('theta: ' + str(theta))
+                # print('sin * rad: ' + str(self.swing_radius * math.sin(theta)))
+                # print('should be 0: ' + str(math.sin(theta)))
                 trajectory_pos_x = self.swing_radius * math.cos(theta)
                 self.leg_ik.ee = [trajectory_pos_x, trajectory_pos_y, 0]
                 
                 angles.append((self.leg_ik.angles[0], self.leg_ik.angles[1]))
                 velocities.append((self.uniform_velocity, self.uniform_velocity))
                 
-                theta += angle_per_step
-        
+                print(trajectory_pos_y)
+
+            # print(theta)
+            # print(self.swing_radius * math.sin(theta))
+
         return angles, velocities
     
 if __name__ == "__main__":
@@ -135,5 +144,5 @@ if __name__ == "__main__":
 
     # TODO: Fix issue where HalfCircleTrajectory only generates a quarter circle trajectory (ToT)
 
-    trajectory = HalfCircleTrajectory(100, leg_center_dist_m, dist_to_ground, swing_radius_m, 1)
+    trajectory = HalfCircleTrajectory(50, leg_center_dist_m, dist_to_ground, swing_radius_m, 1)
     trajectory.plot()
