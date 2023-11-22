@@ -95,7 +95,7 @@ async def main():
         # print(f'Motor 7: \n{motor_state_41}')
         # # print(f'Motor 8: \n{motor_state_42}')
 
-        time.sleep(0.05)
+        time.sleep(0.01)
 
 async def clean():
     await transport.cycle([c11.make_stop()])
