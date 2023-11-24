@@ -3,6 +3,8 @@ import util
 from enum import Enum
 # from typing import TypeAlias
 
+# required for changing resolution
+from moteus import multiplex as mp
 
 class ControlMode(Enum):
     POSITION_CONTROL = 1
@@ -46,7 +48,7 @@ class Motor:
         self.voltage = status.values[moteus.Register.VOLTAGE]
 
         if self.voltage <= self.min_voltage:
-            raise VoltageTooLowException()
+            raise VoltageTooLowException(voltage=self.voltage, controller_id=self.id)
         
     def get_status(self) -> str:
         return f"Motor {self.id}: Pos: {self.position}, Velocity: {self.velocity}, Desired Pos: {self.desired_position}"
@@ -61,7 +63,11 @@ class Motor:
         max_accel: float = 2.0,
         min_voltage: float = 22.5 # 6S minimum voltage
     ):
-        self.controller = moteus.Controller(id, transport=transport)
+        # set the query resolution of controller voltage to be INT16 for higher resolution
+        query_resolution = moteus.QueryResolution()
+        query_resolution.voltage = mp.INT16
+
+        self.controller = moteus.Controller(id, transport=transport, query_resolution=query_resolution)
         self.position_tolerance = position_tolerance
         self.max_torque = max_torque
         self.max_velocity = max_velocity
@@ -122,6 +128,7 @@ class Motor:
             query=True,
         )
 
+
     async def stop(self):
         self.current_command = self.controller.make_stop
         await self.controller.set_stop()
@@ -179,6 +186,8 @@ class VoltageTooLowException(Exception):
     """Exception raised when voltage of system is below minimum threshold.
     """
 
-    def __init__(self, message='Voltage of system under minimum threshold') -> None:
-        self.message = message
+    def __init__(self, voltage, controller_id) -> None:
+        self.voltage = voltage
+        self.controller_id = controller_id
+        self.message = f'Voltage of system under minimum threshold, Voltage: {self.voltage} on ID: {self.controller_id}'
         super().__init__(self.message)
