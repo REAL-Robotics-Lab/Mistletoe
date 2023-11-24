@@ -1,0 +1,1 @@
+sudo python3 -m moteus_gui.tview --pi3hat-cfg '1=11,12;2=21,22;3=31,32;4=42,41' -t $1
