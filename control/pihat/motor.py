@@ -27,6 +27,8 @@ class Motor:
     max_torque: float
     max_velocity: float
     max_accel: float
+    voltage: float
+    min_voltage: float
 
     id: int
 
@@ -41,6 +43,10 @@ class Motor:
         self.status = status
         self.position = status.values[moteus.Register.POSITION]
         self.velocity = status.values[moteus.Register.VELOCITY]
+        self.voltage = status.values[moteus.Register.VOLTAGE]
+
+        if self.voltage <= self.min_voltage:
+            raise VoltageTooLowException()
         
     def get_status(self) -> str:
         return f"Motor {self.id}: Pos: {self.position}, Velocity: {self.velocity}, Desired Pos: {self.desired_position}"
@@ -53,6 +59,7 @@ class Motor:
         max_torque: float = 4.0,
         max_velocity: float = 0.5,
         max_accel: float = 2.0,
+        min_voltage: float = 22.5 # 6S minimum voltage
     ):
         self.controller = moteus.Controller(id, transport=transport)
         self.position_tolerance = position_tolerance
@@ -69,11 +76,12 @@ class Motor:
         self.max_velocity = max_velocity
         self.max_accel = max_accel
         self.id = id
+        self.min_voltage = min_voltage
 
     def set_position(
         self,
         position,
-        target_velocity=0,
+        velocity=0,
         feedforward_torque=None,
         kp_scale=None,
         kd_scale=None,
@@ -96,12 +104,12 @@ class Motor:
         self.desired_position = position
         self.control_mode = ControlMode.POSITION_CONTROL
 
-        print(f"making position ({self.id}): {position}, {target_velocity}")
+        # print(f"making position ({self.id}): {position}, {velocity}")
 
         # Set current command to position control
         self.current_command = self.controller.make_position(
             position=position,
-            velocity=target_velocity,
+            velocity=velocity,
             feedforward_torque=feedforward_torque,
             kp_scale=kp_scale,
             kd_scale=kd_scale,
@@ -140,10 +148,10 @@ class MotorManager:
     transport: moteus.Transport
     motors: dict[int, Motor]
 
-    def __init__(self, motor_ids: list[int], transport: moteus.Transport = None):
+    def __init__(self, motor_ids: list[int], transport: moteus.Transport = None, min_voltage: float = 22.5):
         if transport == None:
             self.transport = util.generate_transport()
-        self.motors = {id: Motor(id, transport) for id in motor_ids}
+        self.motors = {id: Motor(id, transport, min_voltage=min_voltage) for id in motor_ids}
 
     def get_motor(self, id: int):
         try:
@@ -158,6 +166,7 @@ class MotorManager:
 
     async def update(self):
         # Cycle the motors
+        
         statuses = await self.transport.cycle(
             [motor.get_current_command() for motor in self.motors.values()]
         )
@@ -165,3 +174,11 @@ class MotorManager:
         # Update the statuses
         for idx, motor in enumerate(self.motors.values()):
             motor.update_status(statuses[idx])
+
+class VoltageTooLowException(Exception):
+    """Exception raised when voltage of system is below minimum threshold.
+    """
+
+    def __init__(self, message='Voltage of system under minimum threshold') -> None:
+        self.message = message
+        super().__init__(self.message)
