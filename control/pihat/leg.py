@@ -49,7 +49,7 @@ class Leg:
             self.next_trajectory = trajectory
 
     def set_leg_position(self):
-        return
+        # return
         if self.current_state is None or (self.hip_motor.at_desired_position() and self.knee_motor.at_desired_position()):
             self.trajectory.get_next_state()
 
