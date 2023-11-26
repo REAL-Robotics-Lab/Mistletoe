@@ -29,12 +29,54 @@ class Motor:
     max_torque: float
     max_velocity: float
     max_accel: float
+    transport: moteus.Transport
+
     voltage: float
     min_voltage: float
+    voltage_checked: bool
 
     id: int
 
     control_mode: ControlMode
+
+    inverted: bool
+
+    def __init__(
+        self,
+        id: int,
+        transport: moteus.Transport,
+        position_tolerance: float = 0.05,
+        max_torque: float = 4.0,
+        max_velocity: float = 0.5,
+        max_accel: float = 2.0,
+        inverted = False,
+        min_voltage: float = 22.5 # 6S minimum voltage
+    ):
+        # set the query resolution of controller voltage to be INT16 for higher resolution
+        query_resolution = moteus.QueryResolution()
+        query_resolution.voltage = mp.INT32
+
+        self.controller = moteus.Controller(id, transport=transport, query_resolution=query_resolution)
+        self.position_tolerance = position_tolerance
+        self.max_torque = max_torque
+        self.max_velocity = max_velocity
+        self.max_accel = max_accel
+        self.inverted = inverted
+
+        self.current_command = self.controller.make_query()
+        self.control_mode = ControlMode.STOP
+        self.desired_position = 0
+        self.position = 0
+        self.position_tolerance = position_tolerance
+        self.velocity = 0
+        self.max_torque = max_torque
+        self.max_velocity = max_velocity
+        self.max_accel = max_accel
+        self.id = id
+        self.min_voltage = min_voltage
+        self.voltage_checked = False
+
+        self.transport = transport
 
     def update_status(self, status) -> None:
         if self.control_mode == ControlMode.POSITION_CONTROL:
@@ -47,42 +89,13 @@ class Motor:
         self.velocity = status.values[moteus.Register.VELOCITY]
         self.voltage = status.values[moteus.Register.VOLTAGE]
 
-        if self.voltage <= self.min_voltage:
+        if self.voltage_checked == False and self.voltage <= self.min_voltage:
             raise VoltageTooLowException(voltage=self.voltage, controller_id=self.id)
+        
+        self.voltage_checked = True
         
     def get_status(self) -> str:
         return f"Motor {self.id}: Pos: {self.position}, Velocity: {self.velocity}, Desired Pos: {self.desired_position}"
-
-    def __init__(
-        self,
-        id: int,
-        transport: moteus.Transport,
-        position_tolerance: float = 0.05,
-        max_torque: float = 4.0,
-        max_velocity: float = 0.5,
-        max_accel: float = 2.0,
-        min_voltage: float = 22.5 # 6S minimum voltage
-    ):
-        # set the query resolution of controller voltage to be INT16 for higher resolution
-        query_resolution = moteus.QueryResolution()
-        query_resolution.voltage = mp.INT16
-
-        self.controller = moteus.Controller(id, transport=transport, query_resolution=query_resolution)
-        self.position_tolerance = position_tolerance
-        self.max_torque = max_torque
-        self.max_velocity = max_velocity
-        self.max_accel = max_accel
-        self.current_command = self.controller.make_query()
-        self.control_mode = ControlMode.STOP
-        self.desired_position = 0
-        self.position = 0
-        self.position_tolerance = position_tolerance
-        self.velocity = 0
-        self.max_torque = max_torque
-        self.max_velocity = max_velocity
-        self.max_accel = max_accel
-        self.id = id
-        self.min_voltage = min_voltage
 
     def set_position(
         self,
@@ -106,6 +119,10 @@ class Motor:
         if accel_limit:
             self.max_accel = accel_limit
 
+        # Invert position given if inverted
+        if self.inverted == True:
+            position = -1 * position
+
         # Update desired position and control mode
         self.desired_position = position
         self.control_mode = ControlMode.POSITION_CONTROL
@@ -128,10 +145,13 @@ class Motor:
             query=True,
         )
 
-
+    # TODO: Realistically should call one last update cycle in the clean() method in the main file to ensure that make_stop command is being sent
     async def stop(self):
-        self.current_command = self.controller.make_stop
-        await self.controller.set_stop()
+        # self.current_command = self.controller.make_stop()
+        # print(self.transport)
+        # await self.controller.set_stop()
+        await self.transport.cycle([self.controller.make_stop()])
+        # print('controller stopped')
 
     def get_current_command(self) -> moteus.Command:
         return self.current_command
@@ -146,6 +166,8 @@ class Motor:
     def get_velocity(self) -> float:
         return self.velocity
 
+    def set_inverted(self, inverted: bool) -> None:
+        self.inverted = inverted
 
 """ Ensures that motors are cycled and have their statuses updated.
     Run update() once per cycle.
@@ -158,7 +180,7 @@ class MotorManager:
     def __init__(self, motor_ids: list[int], transport: moteus.Transport = None, min_voltage: float = 22.5):
         if transport == None:
             self.transport = util.generate_transport()
-        self.motors = {id: Motor(id, transport, min_voltage=min_voltage) for id in motor_ids}
+        self.motors = {id: Motor(id, self.transport, min_voltage=min_voltage) for id in motor_ids}
 
     def get_motor(self, id: int):
         try:
