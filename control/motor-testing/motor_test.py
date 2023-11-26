@@ -26,8 +26,6 @@ async def main():
 
         motor.update(states[0])
 
-        print(motor)
-
         time.sleep(0.05)
 
 async def clean():

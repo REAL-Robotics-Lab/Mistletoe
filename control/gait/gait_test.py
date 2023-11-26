@@ -5,12 +5,8 @@ import argparse
 import util
 
 import sys
-sys.path.append('../motor-testing')
-sys.path.append('../gait')
 import util
 from trajectory import Trajectory
-
-from motor_state import MotorState
 
 util.confirm_operator_zeroed()
 
@@ -24,8 +20,8 @@ leg_center_dist_m = leg_center_dist_mm / 1000
 
 swing_radius_m = 0.05
 
-drag_time = 0.25
-swing_time = 0.25
+drag_time = 0.5
+swing_time = 0.5
 refresh_rate = 0.01
 dist_to_ground = -0.25
 
@@ -46,8 +42,8 @@ async def main():
     while True:
         angles = trajectory.get_next_angles_revolutions()
 
-        command11 = c11.make_position(position=angles[0], query=True, maximum_torque=4.0, velocity=0.0, velocity_limit=20, accel_limit=10)
-        command12 = c12.make_position(position=-1 * angles[1], query=True, maximum_torque=4.0, velocity=0.0, velocity_limit=20, accel_limit=10)
+        command11 = c11.make_position(position=angles[0], query=True, maximum_torque=4.0, velocity=0.5, velocity_limit=0.5, accel_limit=2)
+        command12 = c12.make_position(position=-1 * angles[1], query=True, maximum_torque=4.0, velocity=0.5, velocity_limit=0.5, accel_limit=2)
         
         print(angles[0])
         print(-angles[1])

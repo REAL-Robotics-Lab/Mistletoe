@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import matplotlib.pyplot as plt
 import math
 import tinyik
-
+import util
 class Trajectory(ABC):
     @abstractmethod
     def __init__(self) -> None:
@@ -31,7 +31,7 @@ class PredeterminedTrajectory(Trajectory):
         return self.finished
 
     def get_next_state(self) -> tuple[tuple[float, float], tuple[float,float]]:
-        if self.counter >= len(self.angles):
+        if self.counter >= len(self.angles) -1:
             self.finished = True
         
         if self.finished == False:
@@ -39,11 +39,11 @@ class PredeterminedTrajectory(Trajectory):
         else:
             self.counter = 0
         
-        angle = self.angles[self.counter]
+        # convert to revs
+        angle = (util.radians_to_revs((self.angles[self.counter][0])), util.radians_to_revs((self.angles[self.counter][1])))
         velocity = self.velocities[self.counter]
+        print(angle)
         
-
-
         return angle, velocity
     
     @abstractmethod
@@ -154,6 +154,7 @@ class StandingTrajectory(PredeterminedTrajectory):
         self.leg_ik.ee = [0, self.dist_to_ground, 0]
         velocity = (0,0)
         angle = (self.leg_ik.angles[0], self.leg_ik.angles[1])
+        print(angle)
         return [angle], [velocity]
     
 if __name__ == "__main__":
@@ -166,8 +167,6 @@ if __name__ == "__main__":
     swing_time = 0.5
     refresh_rate = 0.05
     dist_to_ground = -0.25
-
-    # TODO: Fix issue where HalfCircleTrajectory only generates a quarter circle trajectory (ToT)
 
     # trajectory = HalfCircleTrajectory(50, leg_center_dist_m, dist_to_ground, swing_radius_m, 1)
     trajectory = StandingTrajectory(leg_center_dist_m, dist_to_ground)
