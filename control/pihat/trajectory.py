@@ -147,7 +147,7 @@ class StandingTrajectory(PredeterminedTrajectory):
 
     def __init__(self, leg_center_distance, dist_to_ground) -> None:
         self.dist_to_ground = dist_to_ground
-        self.leg_ik = tinyik.Actuator(['z', [leg_center_distance, 0., 0.], 'z', [leg_center_distance, 0., 0.]])
+        self.leg_ik = tinyik.Actuator(['z', [leg_center_distance, 0.05, 0.], 'z', [leg_center_distance, 0.05, 0.]])
         super().__init__(leg_center_distance)
     
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:

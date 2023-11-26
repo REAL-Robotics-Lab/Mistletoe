@@ -9,24 +9,25 @@ motor_manager = MotorManager(motor_ids=[11,12,21,22,31,32,41,42], min_voltage=22
 
 
 async def main():
-    leg1 = Leg(motor_manager, 11, 12, hip_inverted=True, knee_inverted=True)
-    # leg2 = Leg(motor_manager, 21, 22)
-    # leg3 = Leg(motor_manager, 31, 32)
-    # leg4 = Leg(motor_manager, 41, 42)
+    # offset values were found at laying down position
+    leg1 = Leg(motor_manager, 11, 12, hip_inverted=True, knee_inverted=True, hip_offset=0.2148284912109375, knee_offset=-0.4486083984375)
+    # leg2 = Leg(motor_manager, 21, 22, hip_inverted=False, knee_inverted=False, hip_offset=-0.2254791259765625, knee_offset=0.4503173828125)
+    # leg3 = Leg(motor_manager, 31, 32, hip_inverted=False, knee_inverted=False, hip_offset=-0.22308349609375, knee_offset=0.4444732666015625)
+    # leg4 = Leg(motor_manager, 41, 42, hip_inverted=True, knee_inverted= True, hip_offset=0.232330322265625, knee_offset=-0.44049072265625)
 
     leg_center_dist_mm = 175.87
     leg_center_dist = leg_center_dist_mm / 1000
     swing_radius_m = 0.05
-    dist_to_ground = -0.25
+    dist_to_ground = -0.275
 
-    running_trajectory = HalfCircleTrajectory(50, leg_center_dist, dist_to_ground, swing_radius_m, -0)
+    running_trajectory = HalfCircleTrajectory(50, leg_center_dist, dist_to_ground, swing_radius_m, uniform_velocity=0)
     standing_trajectory = StandingTrajectory(leg_center_dist, dist_to_ground)
 
     while True:
-        leg1.set_trajectory(standing_trajectory)
+        leg1.set_trajectory(running_trajectory)
         # leg2.set_trajectory(standing_trajectory)
         # leg3.set_trajectory(standing_trajectory)
-        # leg4.set_trajectory(standing_trajectory)
+        # leg4.set_trajectory(running_trajectory)
 
         leg1.update()
         # leg2.update()

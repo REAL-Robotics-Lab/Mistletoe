@@ -23,21 +23,18 @@ class Leg:
 
     current_state: tuple[tuple[float, float], tuple[float, float]]
 
-    hip_inverted: bool
-    knee_inverted: bool
-
-    def __init__(self, motor_manager, hip_motor_id, knee_motor_id, hip_inverted, knee_inverted, out_of_phase=False) -> None:
+    def __init__(self, motor_manager, hip_motor_id, knee_motor_id, hip_inverted = False, knee_inverted = False, out_of_phase=False, hip_offset = 0 , knee_offset = 0) -> None:
         self.motor_manager = motor_manager
         self.hip_motor_id = hip_motor_id
         self.knee_motor_id = knee_motor_id
+
+        self.hip_motor = self.motor_manager.get_motor(self.hip_motor_id)
+        self.knee_motor = self.motor_manager.get_motor(self.knee_motor_id)
 
         self.hip_inverted = hip_inverted
         self.knee_inverted = knee_inverted
 
         self.out_of_phase = out_of_phase
-
-        self.hip_motor = motor_manager.get_motor(hip_motor_id)
-        self.knee_motor = motor_manager.get_motor(knee_motor_id)
         
         self.hip_motor.set_inverted(hip_inverted)
         self.knee_motor.set_inverted(knee_inverted)
@@ -45,6 +42,10 @@ class Leg:
         self.trajectory = None
         self.next_trajectory = None
         self.current_state = None
+
+        self.hip_motor.set_offset(hip_offset)
+        self.knee_motor.set_offset(knee_offset)
+
 
     def update(self):
         # print(self.hip_motor.get_status())
@@ -65,7 +66,7 @@ class Leg:
 
     def set_leg_position(self):
         # return
-        if self.current_state is None or (self.hip_motor.at_desired_position() and self.knee_motor.at_desired_position()):
+        # if self.current_state is None or (self.hip_motor.at_desired_position() and self.knee_motor.at_desired_position()):
             self.current_state = self.trajectory.get_next_state()
             angles, velocities = self.current_state
 
@@ -73,13 +74,13 @@ class Leg:
 
             print(angles)
 
-            self.hip_motor.set_position(position=(angles[0] % 1), velocity=velocities[0], maximum_torque=1, accel_limit=2, velocity_limit=0.5)
-            self.knee_motor.set_position(position=(-1 * angles[1]), velocity=velocities[1], maximum_torque=1, accel_limit=2, velocity_limit=0.5)
-        else:
-            angles, velocities = self.current_state
+            self.hip_motor.set_position(position=(angles[0]), velocity=velocities[0], maximum_torque=12, accel_limit=2, velocity_limit=0.5)
+            self.knee_motor.set_position(position=(-1 * angles[1]), velocity=velocities[1], maximum_torque=9, accel_limit=2, velocity_limit=0.5)
+        # else:
+        #     angles, velocities = self.current_state
 
-            self.hip_motor.set_position(position=(angles[0]), velocity=velocities[0], maximum_torque=1, accel_limit=2, velocity_limit=0.5)
-            self.knee_motor.set_position(position=(-1 * angles[1]), velocity=velocities[1], maximum_torque=1, accel_limit=2, velocity_limit=0.5)
+        #     self.hip_motor.set_position(position=(angles[0]), velocity=velocities[0], maximum_torque=12, accel_limit=2, velocity_limit=0.5)
+        #     self.knee_motor.set_position(position=(-1 * angles[1]), velocity=velocities[1], maximum_torque=9, accel_limit=2, velocity_limit=0.5)
                     
 
 

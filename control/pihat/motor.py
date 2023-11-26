@@ -40,6 +40,7 @@ class Motor:
     control_mode: ControlMode
 
     inverted: bool
+    offset: float
 
     def __init__(
         self,
@@ -49,7 +50,6 @@ class Motor:
         max_torque: float = 4.0,
         max_velocity: float = 0.5,
         max_accel: float = 2.0,
-        inverted = False,
         min_voltage: float = 22.5 # 6S minimum voltage
     ):
         # set the query resolution of controller voltage to be INT16 for higher resolution
@@ -61,7 +61,9 @@ class Motor:
         self.max_torque = max_torque
         self.max_velocity = max_velocity
         self.max_accel = max_accel
-        self.inverted = inverted
+
+        self.inverted = False
+        self.offset = 0
 
         self.current_command = self.controller.make_query()
         self.control_mode = ControlMode.STOP
@@ -123,8 +125,15 @@ class Motor:
         if self.inverted == True:
             position = -1 * position
 
+        # add offset to position
+        position -= self.offset
+
         # Update desired position and control mode
         self.desired_position = position
+        
+        print(f'desired position: {self.desired_position}')
+        print(f'real position: {self.position}')
+        
         self.control_mode = ControlMode.POSITION_CONTROL
 
         # print(f"making position ({self.id}): {position}, {velocity}")
@@ -157,7 +166,7 @@ class Motor:
         return self.current_command
 
     def at_desired_position(self) -> bool:
-        # print(f"Motor {self.id} Distance from desired position: {abs(self.position - self.desired_position)}, Tolerance: {self.position_tolerance}")
+        print(f"Motor {self.id} Distance from desired position: {abs(self.position - self.desired_position)}, Tolerance: {self.position_tolerance}, Real position: {self.position}, Desired Position: {self.desired_position}")
         return abs(self.position - self.desired_position) < self.position_tolerance
 
     def get_position(self) -> float:
@@ -168,6 +177,11 @@ class Motor:
 
     def set_inverted(self, inverted: bool) -> None:
         self.inverted = inverted
+
+    def set_offset(self, offset: float) -> None:
+        self.offset = offset
+
+
 
 """ Ensures that motors are cycled and have their statuses updated.
     Run update() once per cycle.
