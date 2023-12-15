@@ -16,8 +16,6 @@ class Trajectory(ABC):
 
 
 class PredeterminedTrajectory(Trajectory):
-    finished: bool
-    counter: int
     length: int
 
     leg_center_distance: float
@@ -26,7 +24,6 @@ class PredeterminedTrajectory(Trajectory):
     velocities = []
 
     def __init__(self, leg_center_distance) -> None:
-        self.counter = 0
         self.leg_center_distance = leg_center_distance
         self.finished = False
         self.angles, self.velocities = self.generate_trajectory()
@@ -35,40 +32,22 @@ class PredeterminedTrajectory(Trajectory):
     def get_finished(self) -> bool:
         return self.finished
 
-    def get_next_state(self) -> tuple[tuple[float, float], tuple[float, float]]:
-        if self.counter >= self.length - 1:
-            self.finished = True
-
-        if self.finished == False:
-            self.counter += 1
-        else:
-            self.finished = False
-            self.counter = 0
-
+    def get_state(self, pos: int) -> tuple[tuple[float, float], tuple[float, float]]:
+        if pos >= self.length - 1:
+            pos = self.length - 1
+                
         # convert to revs
         angle = (
-            util.radians_to_revs((self.angles[self.counter][0])),
-            util.radians_to_revs((self.angles[self.counter][1])),
+            util.radians_to_revs((self.angles[pos][0])),
+            util.radians_to_revs((self.angles[pos][1])),
         )
-        velocity = self.velocities[self.counter]
-        print(angle)
+        velocity = self.velocities[pos]
 
         return angle, velocity
 
     @abstractmethod
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:
         pass
-
-    def set_counter(self, pos: int):
-        if (pos >= self.length):
-            pos = self.length - 1
-        self.counter = int(pos)
-
-    def set_counter_percent(self, percent: float):
-        """
-        Set the counter to a percent from 0 to 1.
-        """
-        self.set_counter(int((self.length - 1) * percent))
 
     def plot(self):
         zeroes = []
