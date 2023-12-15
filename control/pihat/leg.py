@@ -55,6 +55,8 @@ class Leg:
             if self.next_trajectory != None:
                 self.set_trajectory(self.next_trajectory)
         
+        print(self.trajectory.counter)
+
         if self.trajectory is not None:
             self.set_leg_position()
         

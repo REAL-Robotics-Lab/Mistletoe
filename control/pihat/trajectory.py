@@ -33,10 +33,11 @@ class PredeterminedTrajectory(Trajectory):
     def get_next_state(self) -> tuple[tuple[float, float], tuple[float,float]]:
         if self.counter >= len(self.angles) -1:
             self.finished = True
-        
+            
         if self.finished == False:
             self.counter += 1
         else:
+            self.finished = False
             self.counter = 0
         
         # convert to revs
