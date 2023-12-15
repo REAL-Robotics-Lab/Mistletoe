@@ -10,6 +10,9 @@ class Leg:
 
     trajectory: Trajectory
     next_trajectory: Trajectory
+
+    counter: int
+    traj_finished: bool
     
     motor_manager: MotorManager
 
@@ -46,12 +49,20 @@ class Leg:
         self.hip_motor.set_offset(hip_offset)
         self.knee_motor.set_offset(knee_offset)
 
+        self.counter = 0
+        self.traj_finished = False
+
 
     def update(self):
+        self.counter += 1
+        if self.counter >= self.trajectory.length:
+            self.counter = 0
+            self.traj_finished = True
+        
         # print(self.hip_motor.get_status())
         # print(self.knee_motor.get_status())
-
-        if self.trajectory is None or self.trajectory.get_finished() == True:
+        
+        if self.trajectory is None or self.traj_finished:
             if self.next_trajectory != None:
                 self.set_trajectory(self.next_trajectory)
         
@@ -61,23 +72,23 @@ class Leg:
             self.set_leg_position()
         
     def set_trajectory(self, trajectory: Trajectory):
-        if self.trajectory is None or self.trajectory.get_finished() == True:
+        if self.trajectory is None or self.traj_finished:
             self.trajectory = trajectory
+            self.traj_finished = False
+            self.counter = 0
         else:
             self.next_trajectory = trajectory
 
     def set_leg_position(self):
-        # return
-        # if self.current_state is None or (self.hip_motor.at_desired_position() and self.knee_motor.at_desired_position()):
-            self.current_state = self.trajectory.get_next_state()
-            angles, velocities = self.current_state
+        self.current_state = self.trajectory.get_state(self.counter)
+        angles, velocities = self.current_state
 
-            # TODO: should make these pos command params accessible through the constructor or something
+        # TODO: should make these pos command params accessible through the constructor or something
 
-            # print(angles)
+        # print(angles)
 
-            self.hip_motor.set_position(position=(angles[0]), velocity=velocities[0], maximum_torque=12, accel_limit=2, velocity_limit=0.5)
-            self.knee_motor.set_position(position=(-1 * angles[1]), velocity=velocities[1], maximum_torque=9, accel_limit=2, velocity_limit=0.5)
+        self.hip_motor.set_position(position=(angles[0]), velocity=velocities[0], maximum_torque=12, accel_limit=2, velocity_limit=0.5)
+        self.knee_motor.set_position(position=(-1 * angles[1]), velocity=velocities[1], maximum_torque=9, accel_limit=2, velocity_limit=0.5)
         # else:
         #     angles, velocities = self.current_state
 

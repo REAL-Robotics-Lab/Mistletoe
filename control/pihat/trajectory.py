@@ -11,7 +11,7 @@ class Trajectory(ABC):
         pass
 
     @abstractmethod
-    def get_next_state(self) -> tuple[tuple[float, float], tuple[float, float]]:
+    def get_state(self, counter: int) -> tuple[tuple[float, float], tuple[float, float]]:
         pass
 
 
