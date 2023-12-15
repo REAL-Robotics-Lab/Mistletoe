@@ -55,7 +55,7 @@ class Leg:
             if self.next_trajectory != None:
                 self.set_trajectory(self.next_trajectory)
         
-        print(self.trajectory.counter)
+        # print(self.trajectory.counter)
 
         if self.trajectory is not None:
             self.set_leg_position()
@@ -74,7 +74,7 @@ class Leg:
 
             # TODO: should make these pos command params accessible through the constructor or something
 
-            print(angles)
+            # print(angles)
 
             self.hip_motor.set_position(position=(angles[0]), velocity=velocities[0], maximum_torque=12, accel_limit=2, velocity_limit=0.5)
             self.knee_motor.set_position(position=(-1 * angles[1]), velocity=velocities[1], maximum_torque=9, accel_limit=2, velocity_limit=0.5)

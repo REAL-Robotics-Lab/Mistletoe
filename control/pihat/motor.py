@@ -131,8 +131,8 @@ class Motor:
         # Update desired position and control mode
         self.desired_position = position
         
-        print(f'desired position: {self.desired_position}')
-        print(f'real position: {self.position}')
+        # print(f'desired position: {self.desired_position}')
+        # print(f'real position: {self.position}')
         
         self.control_mode = ControlMode.POSITION_CONTROL
 

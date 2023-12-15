@@ -190,7 +190,7 @@ class StandingTrajectory(PredeterminedTrajectory):
         self.leg_ik.ee = [0, self.dist_to_ground, 0]
         velocity = (0, 0)
         angle = (self.leg_ik.angles[0], self.leg_ik.angles[1])
-        print(angle)
+        # print(angle)
         return [angle], [velocity]
 
 
