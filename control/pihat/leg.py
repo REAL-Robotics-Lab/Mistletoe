@@ -50,13 +50,17 @@ class Leg:
         self.knee_motor.set_offset(knee_offset)
 
         self.counter = 0
+        self.increment = 1
         self.traj_finished = False
 
 
     def update(self):
-        self.counter += 1
+        self.counter += self.increment
         if self.counter >= self.trajectory.length:
             self.counter = 0
+            self.traj_finished = True
+        elif self.counter < 0:
+            self.counter = self.trajectory.length-1
             self.traj_finished = True
         
         # print(self.hip_motor.get_status())
@@ -71,11 +75,13 @@ class Leg:
         if self.trajectory is not None:
             self.set_leg_position()
         
-    def set_trajectory(self, trajectory: Trajectory):
+    def set_trajectory(self, trajectory: Trajectory, offset: float= 0, reversed: bool = False):
         if self.trajectory is None or self.traj_finished:
             self.trajectory = trajectory
             self.traj_finished = False
-            self.counter = 0
+            true_offset = int(self.trajectory.length * offset)
+            self.counter = true_offset if not reversed else (trajectory.length - 1) - true_offset
+            self.increment = 1 if not reversed else -1
         else:
             self.next_trajectory = trajectory
 

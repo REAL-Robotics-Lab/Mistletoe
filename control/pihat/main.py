@@ -18,18 +18,20 @@ async def main():
 
     leg_center_dist_mm = 175.87
     leg_center_dist = leg_center_dist_mm / 1000
-    swing_radius_m = 0.05
+    swing_radius_m = 0.1
     dist_to_ground = -0.275
-    running_trajectory1 = HalfCircleTrajectory(50, leg_center_dist, dist_to_ground, swing_radius_m, uniform_velocity=0)
-    running_trajectory2 = HalfCircleTrajectory(50, leg_center_dist, dist_to_ground, swing_radius_m, uniform_velocity=0)
-    running_trajectory3 = HalfCircleTrajectory(50, leg_center_dist, dist_to_ground, swing_radius_m, uniform_velocity=0)
-    running_trajectory4 = HalfCircleTrajectory(50, leg_center_dist, dist_to_ground, swing_radius_m, uniform_velocity=0)
+    running_trajectory = HalfCircleTrajectory(50, leg_center_dist, dist_to_ground, swing_radius_m, uniform_velocity=0)
+    # standing_trajectory = StandingTrajectory(leg_center_dist, dist_to_ground)
 
     # standing_trajectory = StandingTrajectory(leg_center_dist, dist_to_ground)
-    leg1.set_trajectory(running_trajectory1)
-    leg2.set_trajectory(running_trajectory2)
-    leg3.set_trajectory(running_trajectory3)
-    leg4.set_trajectory(running_trajectory4)
+    leg1.set_trajectory(running_trajectory, offset=0)
+    leg2.set_trajectory(running_trajectory, offset=0.5)
+    leg3.set_trajectory(running_trajectory, offset=0,  reversed=True)
+    leg4.set_trajectory(running_trajectory, offset=0.5, reversed=True)
+    # leg1.set_trajectory(standing_trajectory)
+    # leg2.set_trajectory(standing_trajectory)
+    # leg3.set_trajectory(standing_trajectory)
+    # leg4.set_trajectory(standing_trajectory)
 
     while True:
         leg1.update()
