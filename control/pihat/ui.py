@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import builtins
 from enum import Enum
 
@@ -13,6 +14,9 @@ class Type(Enum):
 class Label:
 
     def __init__(self, text: str, value: type[int] | type[float] | type[bool]) -> None:
+        self.frame = tk.Frame()
+        self.label = tk.Label(self.frame, text=f'{text}: ', font=('Arial', 15))
+        self.input_var = None
         match type(value):
             case builtins.int:
                 self.label_type = Type.INTEGER
@@ -20,46 +24,62 @@ class Label:
                 self.label_type = Type.FLOAT
             case builtins.bool:
                 self.label_type = Type.BOOLEAN
+                self.input_var = tk.BooleanVar()
+                self.input = tk.Checkbutton(self.frame, command=self._on_button_submit, variable=self.input_var)
             case _:
                 self.label_type = Type.INTEGER
-        self.frame = tk.Frame()
-        self.label = tk.Label(self.frame, text=f'{text}: ')
-        self.input_var = tk.StringVar()
-        self.input = tk.Entry(self.frame, width=5, textvariable=self.input_var)
 
         self.label.pack(side=tk.LEFT)
-        self.input.pack(side=tk.LEFT)
+
+        if self.label_type == Type.INTEGER or self.label_type == Type.FLOAT:
+            self.input_var = tk.StringVar()
+            self.input = tk.Entry(self.frame, width=5, textvariable=self.input_var, font=('Arial', 15))
+            self.input.pack(side=tk.LEFT)
+            self.update_button = tk.Button(self.frame, text='Update', command=self._on_button_submit, font=('Arial', 12))
+            self.update_button.pack(side=tk.LEFT, padx=5)
+        else:
+            self.input.pack(side=tk.LEFT)
+
         self.frame.pack(pady=5)
 
         self.set_value(value)
+        self.value = value
 
-    def get_value(self):
-        return self.value
+    def _on_button_submit(self):
+        self.value = self._get_value()
 
-    def update(self):
+    def _get_value(self):
         value = None
         match self.label_type:
             case Type.INTEGER:
                 try:
                     value = int(self.input_var.get())
                 except:
-                    return
-        if value != self.value:
-            print(value)
-            self.value = value
+                    return -1
+            case Type.FLOAT:
+                try:
+                    value = float(self.input_var.get())
+                except:
+                    return -1
+            case Type.BOOLEAN:
+                return self.input_var.get()
+        return value
+
+    def get_value(self):
+        return self.value
 
     def set_value(self, value):
-        self.value = value
-        self.input_var.set(str(value))
+        self.input_var.set(value)
 
 class QuadUI:
     def __init__(self) -> None:
-        self.window = tk.Tk('REAL Quad UI')
+        self.window = tk.Tk()
         self.labels: Dict[str, Label] = {}
 
+        # style = ttk.Style(self.window)
+        # style.configure('tkinter.ttk.Checkbutton', font = 40)
+
     def update(self):
-        for label in self.labels:
-            self.labels[label].update()
         ui.window.update()
 
     def put(self, name, value: int | bool | float):
@@ -79,6 +99,7 @@ class QuadUI:
 if __name__ == '__main__':
     ui = QuadUI()
 
+    ui.put('Disabled', True)
     ui.put('Position', 5)
     try:
         while True:
