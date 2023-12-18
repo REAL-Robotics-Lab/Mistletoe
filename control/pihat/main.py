@@ -8,8 +8,8 @@ import threading
 import traceback
 motor_manager = MotorManager(motor_ids=[11,12,21,22,31,32,41,42], min_voltage=22.5)
 
-leg1 = Leg(motor_manager, 11, 12, hip_inverted=True, knee_inverted=True, hip_offset=0, knee_offset=-0)
-leg2 = Leg(motor_manager, 21, 22, hip_inverted=False, knee_inverted=False, hip_offset=0, knee_offset=0)
+leg1 = Leg(motor_manager, 11, 12, hip_inverted=False, knee_inverted=False, hip_offset=0, knee_offset=-0)
+leg2 = Leg(motor_manager, 21, 22, hip_inverted=True, knee_inverted=True, hip_offset=0, knee_offset=0)
 leg3 = Leg(motor_manager, 31, 32, hip_inverted=False, knee_inverted=False, hip_offset=0, knee_offset=0)
 leg4 = Leg(motor_manager, 41, 42, hip_inverted=True, knee_inverted= True, hip_offset=0, knee_offset=0)
 
