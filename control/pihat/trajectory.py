@@ -2,7 +2,11 @@ from abc import ABC, abstractmethod
 import matplotlib.pyplot as plt
 import math
 import tinyik
-import util
+import csv
+
+
+def radians_to_revs(angle_radians):
+    return angle_radians / (2 * math.pi)
 
 
 class Trajectory(ABC):
@@ -21,12 +25,15 @@ class PredeterminedTrajectory(Trajectory):
     leg_center_distance: float
 
     angles = []
-    velocities = []
+    # velocities = []
 
-    def __init__(self, leg_center_distance) -> None:
-        self.leg_center_distance = leg_center_distance
+    def __init__(self, leg_center_distance=None, filepath=None) -> None:
         self.finished = False
-        self.angles, self.velocities = self.generate_trajectory()
+        if filepath is not None:
+            self.load_trajectory(filepath)
+        else:
+            self.leg_center_distance = leg_center_distance
+            self.angles = self.generate_trajectory()
         self.length = len(self.angles)
 
     def get_finished(self) -> bool:
@@ -38,12 +45,11 @@ class PredeterminedTrajectory(Trajectory):
                 
         # convert to revs
         angle = (
-            util.radians_to_revs((self.angles[pos][0])),
-            util.radians_to_revs((self.angles[pos][1])),
+            radians_to_revs((self.angles[pos][0])),
+            radians_to_revs((self.angles[pos][1])),
         )
-        velocity = self.velocities[pos]
 
-        return angle, velocity
+        return angle
 
     @abstractmethod
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:
@@ -90,6 +96,20 @@ class PredeterminedTrajectory(Trajectory):
         plt.ylim(-0.3, 0.05)
         plt.show()
 
+    def save_trajectory(self, filepath):
+        with open(filepath, newline='', mode='w') as csvfile:
+            writer = csv.writer(csvfile, delimiter=' ', quotechar='|')
+            for [hip, knee] in self.angles:
+                writer.writerow([hip, knee])
+
+    def load_trajectory(self, filepath):
+        self.angles = []
+        with open(filepath, newline='') as csvfile:
+            reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+            for [hip, knee] in reader:
+                self.angles.append((float(hip), float(knee)))
+            
+
 
 class HalfCircleTrajectory(PredeterminedTrajectory):
     num_setpoints: int
@@ -104,27 +124,32 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
 
     def __init__(
         self,
-        num_setpoints,
-        leg_center_distance,
-        dist_to_ground,
-        swing_radius,
-        uniform_velocity,
+        dist_to_ground=None,
+        leg_center_distance=None,
+        filepath=None,
+        num_setpoints=None,
+        swing_radius=None,
     ) -> None:
-        self.num_setpoints = num_setpoints
+        if filepath is not None:
+            self.load_trajectory(filepath)
 
-        self.num_setpoints_swing = int((math.pi / (2 + math.pi)) * num_setpoints)
-        self.num_setpoints_drag = int((2 / (2 + math.pi)) * num_setpoints)
+            super().__init__(filepath=filepath)
+        else:
+            self.num_setpoints = num_setpoints
 
-        self.leg_ik = tinyik.Actuator(
-            ["z", [leg_center_distance, 0.0, 0.0], "z", [leg_center_distance, 0.0, 0.0]]
-        )
+            self.num_setpoints_swing = int((math.pi / (2 + math.pi)) * num_setpoints)
+            self.num_setpoints_drag = int((2 / (2 + math.pi)) * num_setpoints)
 
-        self.dist_to_ground = dist_to_ground
-        self.swing_radius = swing_radius
+            self.leg_ik = tinyik.Actuator(
+                ["z", [leg_center_distance, 0.0, 0.0], "z", [leg_center_distance, 0.0, 0.0]]
+            )
 
-        self.uniform_velocity = uniform_velocity
+            self.swing_radius = swing_radius
 
-        super().__init__(leg_center_distance)
+            self.dist_to_ground = dist_to_ground
+
+            super().__init__(leg_center_distance=leg_center_distance)
+        
 
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:
         trajectory_pos_x = 0
@@ -136,7 +161,6 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
         theta = 0
 
         angles = []
-        velocities = []
 
         for step_counter in range(self.num_setpoints):
             if (
@@ -146,7 +170,7 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
                 self.leg_ik.ee = [trajectory_pos_x, trajectory_pos_y, 0]
 
                 angles.append((self.leg_ik.angles[0], self.leg_ik.angles[1]))
-                velocities.append((self.uniform_velocity, self.uniform_velocity))
+                # velocities.append((self.uniform_velocity, self.uniform_velocity))
 
                 trajectory_pos_x += self.swing_radius / (self.num_setpoints_drag / 2)
                 trajectory_pos_y = self.dist_to_ground
@@ -162,12 +186,12 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
                 self.leg_ik.ee = [trajectory_pos_x, trajectory_pos_y, 0]
 
                 angles.append((self.leg_ik.angles[0], self.leg_ik.angles[1]))
-                velocities.append((self.uniform_velocity, self.uniform_velocity))
+                # velocities.append((self.uniform_velocity, self.uniform_velocity))
 
             # print(theta)
             # print(self.swing_radius * math.sin(theta))
 
-        return angles, velocities
+        return angles
 
 
 class StandingTrajectory(PredeterminedTrajectory):

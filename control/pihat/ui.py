@@ -1,7 +1,9 @@
 import tkinter as tk
+from tkinter import messagebox
 from tkinter import ttk
 import builtins
 from enum import Enum
+import time
 
 from typing import *
 
@@ -15,6 +17,7 @@ class Label:
 
     def __init__(self, text: str, value: type[int] | type[float] | type[bool]) -> None:
         self.frame = tk.Frame()
+        self.name = text
         self.label = tk.Label(self.frame, text=f'{text}: ', font=('Arial', 15))
         self.input_var = None
         match type(value):
@@ -48,6 +51,9 @@ class Label:
     def _on_button_submit(self):
         self.value = self._get_value()
 
+    def _erroneous_input_msgbox(self):
+        messagebox.showerror('Input Error', f'Erroneous input for variable: {self.name}')
+
     def _get_value(self):
         value = None
         match self.label_type:
@@ -55,11 +61,15 @@ class Label:
                 try:
                     value = int(self.input_var.get())
                 except:
+                    self.set_value(0)
+                    self._erroneous_input_msgbox()
                     return -1
             case Type.FLOAT:
                 try:
                     value = float(self.input_var.get())
                 except:
+                    self.set_value(0)
+                    self._erroneous_input_msgbox()
                     return -1
             case Type.BOOLEAN:
                 return self.input_var.get()
@@ -100,9 +110,10 @@ if __name__ == '__main__':
     ui = QuadUI()
 
     ui.put('Disabled', True)
-    ui.put('Position', 5)
+    ui.put('Position', 5.0)
     try:
         while True:
+            ui.put('Time', time.process_time())
             ui.update()
     except KeyboardInterrupt:
         pass

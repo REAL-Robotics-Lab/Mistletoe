@@ -64,6 +64,3 @@ async def zero_controller(controller: moteus.Controller):
     await stream.flush_read()
     await stream.command('d rezero 0'.encode('latin1'))
     await stream.flush_read()
-
-def radians_to_revs(angle_radians):
-    return angle_radians / (2 * math.pi)

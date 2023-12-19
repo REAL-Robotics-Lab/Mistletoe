@@ -87,14 +87,12 @@ class Leg:
 
     def set_leg_position(self):
         self.current_state = self.trajectory.get_state(self.counter)
-        angles, velocities = self.current_state
+        angles = self.current_state
 
         # TODO: should make these pos command params accessible through the constructor or something
 
-        # print(angles)
-
-        self.hip_motor.set_position(position=(angles[0]), velocity=velocities[0], maximum_torque=12, accel_limit=2, velocity_limit=0.5)
-        self.knee_motor.set_position(position=(-1 * angles[1]), velocity=velocities[1], maximum_torque=9, accel_limit=2, velocity_limit=0.5)
+        self.hip_motor.set_position(position=(angles[0]), velocity=0, maximum_torque=15, accel_limit=8, velocity_limit=0.5)
+        self.knee_motor.set_position(position=(-1 * angles[1]), velocity=0, maximum_torque=15, accel_limit=8, velocity_limit=0.5)
         # else:
         #     angles, velocities = self.current_state
 
