@@ -4,6 +4,8 @@ import math
 import tinyik
 import csv
 
+from os import path
+
 
 def radians_to_revs(angle_radians):
     return angle_radians / (2 * math.pi)
@@ -29,12 +31,17 @@ class PredeterminedTrajectory(Trajectory):
 
     def __init__(self, leg_center_distance=None, filepath=None) -> None:
         self.finished = False
-        if filepath is not None:
+        if filepath is not None and path.exists(filepath):
+            print("  Reading trajectory from file...")
             self.load_trajectory(filepath)
         else:
+            print("  Generating trajectory...")
             self.leg_center_distance = leg_center_distance
             self.angles = self.generate_trajectory()
         self.length = len(self.angles)
+        
+        if filepath and not path.exists(filepath):
+            self.save_trajectory(filepath=filepath)
 
     def get_finished(self) -> bool:
         return self.finished
@@ -198,24 +205,22 @@ class StandingTrajectory(PredeterminedTrajectory):
     dist_to_ground: float
     leg_ik: tinyik.Actuator
 
-    def __init__(self, leg_center_distance, dist_to_ground) -> None:
+    def __init__(self, leg_center_distance, dist_to_ground, filepath=None) -> None:
         self.dist_to_ground = dist_to_ground
         self.leg_ik = tinyik.Actuator(
             [
                 "z",
-                [leg_center_distance, 0.05, 0.0],
+                [leg_center_distance, 0, 0.0],
                 "z",
-                [leg_center_distance, 0.05, 0.0],
+                [leg_center_distance, 0, 0.0],
             ]
         )
-        super().__init__(leg_center_distance)
+        super().__init__(leg_center_distance, filepath=filepath)
 
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:
         self.leg_ik.ee = [0, self.dist_to_ground, 0]
-        velocity = (0, 0)
         angle = (self.leg_ik.angles[0], self.leg_ik.angles[1])
-        print(angle)
-        return [angle], [velocity]
+        return [angle]
 
 
 class GetUpTrajectory(PredeterminedTrajectory):
