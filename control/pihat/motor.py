@@ -1,6 +1,9 @@
 import moteus
 import util
 from enum import Enum
+from time import perf_counter
+
+from WS_client import WSClient
 # from typing import TypeAlias
 
 # required for changing resolution
@@ -206,6 +209,14 @@ class MotorManager:
     async def stop_motors(self):
         for motor in self.motors.values():
             await motor.stop()
+    
+    def update_telemetry_data(self, client: WSClient):
+        for motor in self.motors.values():
+            table = f"motor_{str(motor.id)}"
+            client.add_data(table, "Position", str(motor.get_position()))
+            client.add_data(table, "Desired Position", str(motor.desired_position))
+        client.add_data("main", "timestamp",  f"{perf_counter():.5f}")
+
 
     async def update(self):
         # Cycle the motors
