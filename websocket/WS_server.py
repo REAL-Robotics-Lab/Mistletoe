@@ -1,8 +1,6 @@
 import socket
-
-class WSServer():
-    def __init__(self) -> None:
-        pass
+import pickle
+import json
 
 # get the hostname
 host = socket.gethostname()
@@ -26,28 +24,38 @@ fig = plt.figure()
 ax1 = fig.add_subplot(1,1,1)
 
 x = []
-y = []    
-
-counter = 0
+y_1 = []    
+y_2 = []
 
 def animate(i):
 
-    global counter
-
     # receive data stream. it won't accept data packet greater than 1024 bytes
-    data = conn.recv(1024).decode()
+    data = conn.recv(1024)
+
     if not data:
         # if data is not received break
         return
+
+    data = pickle.loads(data)
+
     print("from connected user: " + str(data))
     conn.send('b'.encode())  # send data to the client
 
-    counter += 1
-    
+    counter = float(data["x"])
+    real_pos = float(data["real_pos"])
+    desired_pos = float(data["desired_pos"])
+
     x.append(counter)
-    y.append(data)
+    y_1.append(desired_pos)
+    y_2.append(real_pos)
     ax1.clear()
-    ax1.plot(x, y)
+    ax1.plot(x, y_1, color='red')
+    ax2 = ax1.twinx()
+    ax2.plot(x, y_2, color='blue')
+
+    a,b = -10,10
+    ax1.set_ylim(a,b)
+    ax2.set_ylim(a,b)
 
 ani = animation.FuncAnimation(fig, animate, interval=10)
 plt.show()
