@@ -47,10 +47,6 @@ fig = plt.figure()
 ax1 = fig.add_subplot(1,1,1)
 ax2 = ax1.twinx()
 
-a,b = -10, 10
-ax1.set_ylim(a,b)
-ax2.set_ylim(a,b)
-
 x = []
 y_1 = []
 y_2 = []
@@ -88,6 +84,10 @@ def animate(i):
 
     ax1.set_xlim(x_low_bound, x_up_bound)
     ax2.set_xlim(x_low_bound, x_up_bound)
+
+    a,b = -0.25, 0
+    ax1.set_ylim(a,b)
+    ax2.set_ylim(a,b)
 
 def render_animation(): 
     anim = animation.FuncAnimation(fig, animate, interval=10)

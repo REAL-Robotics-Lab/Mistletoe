@@ -245,7 +245,6 @@ class MotorManager:
             motor.update_status(statuses[idx])
         #
         self.update_telemetry_data()
-        print('hello')
 
 class VoltageTooLowException(Exception):
     """Exception raised when voltage of system is below minimum threshold.
