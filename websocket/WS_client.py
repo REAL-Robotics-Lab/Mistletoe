@@ -36,15 +36,17 @@ class WSClient():
         self.data[table][variable] = data
 
 if __name__ == '__main__':
-    ws_client = WSClient(hostname=input("Enter hostname: "),port=5000)
+    ws_client = WSClient(hostname="192.168.1.129",port=5000)
     print("connected")
 
     for i in range(500):
         ws_client.data = {
             "main": {
-                "x": str(i),
-                "real_pos": str(1),
-                "desired_pos": str(-1)
+                "timestamp": str(i),
+            },
+            "motor_11": {
+                "Position": str(randrange(-10,10)),
+                "Desired Position": str(randrange(-10,10))
             }
         }
         ws_client.send_telemetry()

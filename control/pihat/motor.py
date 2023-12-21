@@ -193,11 +193,25 @@ class Motor:
 class MotorManager:
     transport: moteus.Transport
     motors: dict[int, Motor]
+    telemetry_data: dict
 
     def __init__(self, motor_ids: list[int], transport: moteus.Transport = None, min_voltage: float = 22.5):
         if transport == None:
             self.transport = util.generate_transport()
         self.motors = {id: Motor(id, self.transport, min_voltage=min_voltage) for id in motor_ids}
+
+        self.telemetry_data = {}
+
+        # initailize telemetetry data
+        for motor in self.motors.values():
+            self.telemetry_data['motor_' + str(motor.id)] = {
+                'Position': 0,
+                'Desired Position': 0
+            }
+        self.telemetry_data["main"] = {
+            "timestamp": perf_counter()
+        }
+
 
     def get_motor(self, id: int):
         try:
@@ -210,13 +224,14 @@ class MotorManager:
         for motor in self.motors.values():
             await motor.stop()
     
-    def update_telemetry_data(self, client: WSClient):
+    def update_telemetry_data(self):
         for motor in self.motors.values():
-            table = f"motor_{str(motor.id)}"
-            client.add_data(table, "Position", str(motor.get_position()))
-            client.add_data(table, "Desired Position", str(motor.desired_position))
-        client.add_data("main", "timestamp",  f"{perf_counter():.5f}")
-
+            self.telemetry_data['motor_' + str(motor.id)]['Position'] = motor.get_position()
+            self.telemetry_data['motor_' + str(motor.id)]['Desired Position'] = motor.desired_position
+            self.telemetry_data["main"]["timestamp"] = perf_counter()
+    
+    def get_telemetry_data(self):
+        return self.telemetry_data
 
     async def update(self):
         # Cycle the motors
@@ -228,6 +243,9 @@ class MotorManager:
         # Update the statuses
         for idx, motor in enumerate(self.motors.values()):
             motor.update_status(statuses[idx])
+        #
+        self.update_telemetry_data()
+        print('hello')
 
 class VoltageTooLowException(Exception):
     """Exception raised when voltage of system is below minimum threshold.
