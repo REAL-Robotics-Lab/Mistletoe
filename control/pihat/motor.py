@@ -157,7 +157,6 @@ class Motor:
             query=True,
         )
 
-    # TODO: Realistically should call one last update cycle in the clean() method in the main file to ensure that make_stop command is being sent
     async def stop(self):
         # self.current_command = self.controller.make_stop()
         # print(self.transport)
@@ -229,21 +228,18 @@ class MotorManager:
             self.telemetry_data['motor_' + str(motor.id)]['Position'] = motor.get_position()
             self.telemetry_data['motor_' + str(motor.id)]['Desired Position'] = motor.desired_position
             self.telemetry_data["main"]["timestamp"] = perf_counter()
+        # print(self.telemetry_data)
+        
     
     def get_telemetry_data(self):
         return self.telemetry_data
 
     async def update(self):
-        # Cycle the motors
-        
-        statuses = await self.transport.cycle(
-            [motor.get_current_command() for motor in self.motors.values()]
-        )
+        for motor in self.motors.values():
+            status = await self.transport.cycle([motor.get_current_command()])
+            motor.update_status(status[0])
+            print(motor.get_status())
 
-        # Update the statuses
-        for idx, motor in enumerate(self.motors.values()):
-            motor.update_status(statuses[idx])
-        #
         self.update_telemetry_data()
 
 class VoltageTooLowException(Exception):
