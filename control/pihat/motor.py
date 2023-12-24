@@ -235,12 +235,25 @@ class MotorManager:
         return self.telemetry_data
 
     async def update(self):
-        for motor in self.motors.values():
-            status = await self.transport.cycle([motor.get_current_command()])
-            motor.update_status(status[0])
-            print(motor.get_status())
+        # for motor in self.motors.values():
+        #     status = await self.transport.cycle([motor.get_current_command()])
+        #     motor.update_status(status[0])
+
+        statuses = await self.transport.cycle(
+            [motor.get_current_command() for motor in self.motors.values()]
+        )
+
+        # print(statuses[0].id)
+
+        # # Update the statuses
+        # for idx, motor in enumerate(self.motors.values()):
+        #     motor.update_status(statuses[idx])
+
+        for status in statuses:
+            self.motors[status.id].update_status(status)
 
         self.update_telemetry_data()
+
 
 class VoltageTooLowException(Exception):
     """Exception raised when voltage of system is below minimum threshold.
