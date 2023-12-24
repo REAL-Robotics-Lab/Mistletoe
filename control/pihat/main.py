@@ -34,8 +34,8 @@ async def leg_control(frequency: float=200):
         current_time = time.perf_counter()
         curr_period = current_time - base_time
         if curr_period >= period:
-            # print(f"Period: {curr_period:.5f}")
-            # print(f"Frequency: {1/curr_period:.1f}")
+            print(f"Period: {curr_period:.5f}")
+            print(f"Frequency: {1/curr_period:.1f}")
             leg1.update()
             leg2.update()
             leg3.update()
@@ -52,7 +52,6 @@ def control_leg_async():
 
 def send_telemetry():
     global program_active
-    print("1")
 
     IP = "192.168.1.129"
     PORT = 5000
@@ -70,8 +69,8 @@ def send_telemetry():
             current_time = time.perf_counter()
             curr_period = current_time - base_time
             if curr_period >= period:
-                print(f"Telemetry Frequency: {1/curr_period:.1f}")
-                print(f"Telemetry Period: {curr_period:.1f}")
+                # print(f"Telemetry Frequency: {1/curr_period:.1f}")
+                # print(f"Telemetry Period: {curr_period:.1f}")
                 # start1 = time.perf_counter()
                 telemetry_data = motor_manager.get_telemetry_data()
                 send_json_message(sock, telemetry_data)

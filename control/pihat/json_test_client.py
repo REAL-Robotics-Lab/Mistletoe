@@ -14,6 +14,7 @@ PORT = 5000
 
 def generate_json_message() -> Dict[str, Any]:
     # """Generate random json packet with hashed data bits"""
+
     return {
             "main": {
                 "timestamp": time.time(),
@@ -32,7 +33,7 @@ def send_json_message(
     """Send json packet to server"""
     message = (json.dumps(json_message) + '\n').encode()
     sock.sendall(message)
-    print(f'{len(message)} bytes sent')
+    # print(f'{len(message)} bytes sent')
 
 
 def main() -> None:

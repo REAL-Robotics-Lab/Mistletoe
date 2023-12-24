@@ -58,10 +58,10 @@ y_1 = []
 y_2 = []
 
 # desired pos
-x_3 = []
-x_4 = []
-y_3 = []
-y_4 = []
+# x_3 = []
+# x_4 = []
+# y_3 = []
+# y_4 = []
 
 start_time = time.time()
 
@@ -105,20 +105,20 @@ def animate(i):
     desired_pos_2_y = math.sin(rev_to_radians(desired_pos_2)) * leg_center_dist
 
     resultant_desired_pos_x = desired_pos_1_x + desired_pos_2_x
-    resultant_desired_pos_y = desired_pos_2_y + desired_pos_2_y
+    resultant_desired_pos_y = desired_pos_1_y + desired_pos_2_y
 
     resultant_real_pos_x = real_pos_1_x + real_pos_2_x
     resultant_real_pos_y = real_pos_1_y + real_pos_2_y
 
-    x_1.append(real_pos_1_x)
-    x_2.append(resultant_real_pos_x)
-    y_1.append(real_pos_1_y)
-    y_2.append(resultant_real_pos_y)
+    # x_1.append(real_pos_1_x)
+    x_1.append(resultant_real_pos_x)
+    # y_1.append(real_pos_1_y)
+    y_1.append(resultant_real_pos_y)
 
-    x_3.append(desired_pos_1_x)
-    x_4.append(resultant_desired_pos_x)
-    y_3.append(desired_pos_1_y)
-    y_4.append(resultant_desired_pos_y)
+    # x_3.append(desired_pos_1_x)
+    x_2.append(resultant_desired_pos_x)
+    # y_3.append(desired_pos_1_y)
+    y_2.append(resultant_desired_pos_y)
 
     # if len(x_1) > points_per_frame:
     #     x_1.pop(0)
@@ -133,9 +133,9 @@ def animate(i):
     ax1.clear()
 
     ax1.scatter(x_1, y_1,marker="o", color='red')
-    ax1.scatter(x_2, y_2,marker="o", color='red')
-    ax1.scatter(x_3, y_3,marker="o", color='blue')
-    ax1.scatter(x_4, y_4,marker="o", color='blue')
+    ax1.scatter(x_2, y_2,marker="o", color='blue')
+    # ax1.scatter(x_3, y_3,marker="o", color='blue')
+    # ax1.scatter(x_4, y_4,marker="o", color='blue')
 
 def render_animation(): 
     anim = animation.FuncAnimation(fig, animate, interval=10)

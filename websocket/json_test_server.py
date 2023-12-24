@@ -24,7 +24,7 @@ class DumpHandler(StreamRequestHandler):
                 data = self.rfile.readline()
                 if not data:
                     break
-                print('received', data.decode().rstrip())
+                # print('received', data.decode().rstrip())
                 # print(type())
                 formatted_data = json.loads(data.decode().rstrip())
         finally:
@@ -46,10 +46,12 @@ style.use('fivethirtyeight')
 fig = plt.figure()
 ax1 = fig.add_subplot(1,1,1)
 ax2 = ax1.twinx()
+ax3 = ax1.twinx()
 
 x = []
 y_1 = []
 y_2 = []
+y_3 = []
 
 start_time = time.time()
 
@@ -65,12 +67,17 @@ def animate(i):
         return
 
     time_stamp = float(formatted_data["main"]["timestamp"]) - start_time 
-    real_pos = float(formatted_data["motor_11"]["Position"])
-    desired_pos = float(formatted_data["motor_11"]["Desired Position"])
+    real_pos = float(formatted_data["motor_12"]["Position"])
+    desired_pos = -float(formatted_data["motor_12"]["Desired Position"])
+    error = desired_pos - real_pos 
+
+    print(real_pos)
+    print(desired_pos)
 
     x.append(time_stamp)
     y_1.append(desired_pos)
     y_2.append(real_pos)
+    y_3.append(error)
 
     second_frame = 10
 
@@ -79,15 +86,20 @@ def animate(i):
 
     ax1.clear()
     ax2.clear()
+    ax3.clear()
+
     ax1.plot(x, y_1, color='red')
     ax2.plot(x, y_2, color='blue')
+    ax3.plot(x, y_3, color='green')
 
     ax1.set_xlim(x_low_bound, x_up_bound)
     ax2.set_xlim(x_low_bound, x_up_bound)
+    ax3.set_xlim(x_low_bound, x_up_bound)
 
-    a,b = -0.25, 0
+    a,b = -1, 1
     ax1.set_ylim(a,b)
     ax2.set_ylim(a,b)
+    ax3.set_ylim(a,b)
 
 def render_animation(): 
     anim = animation.FuncAnimation(fig, animate, interval=10)
