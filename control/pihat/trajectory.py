@@ -263,6 +263,6 @@ if __name__ == "__main__":
     refresh_rate = 0.05
     dist_to_ground = -0.25
 
-    # trajectory = HalfCircleTrajectory(50, leg_center_dist_m, dist_to_ground, swing_radius_m, 1)
-    trajectory = StandingTrajectory(leg_center_dist_m, dist_to_ground)
+    trajectory = HalfCircleTrajectory(leg_center_distance = leg_center_dist_m, dist_to_ground=dist_to_ground, num_setpoints=50, swing_radius=swing_radius_m)
+    # trajectory = StandingTrajectory(leg_center_dist_m, dist_to_ground)
     trajectory.plot()

@@ -94,6 +94,8 @@ class Motor:
         self.velocity = status.values[moteus.Register.VELOCITY]
         self.voltage = status.values[moteus.Register.VOLTAGE]
 
+        # print(self.status.values[moteus.Register.VOLTAGE])
+
         if self.voltage_checked == False and self.voltage <= self.min_voltage:
             raise VoltageTooLowException(voltage=self.voltage, controller_id=self.id)
         
@@ -251,6 +253,7 @@ class MotorManager:
 
         for status in statuses:
             self.motors[status.id].update_status(status)
+            
 
         self.update_telemetry_data()
 

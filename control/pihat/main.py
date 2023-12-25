@@ -16,7 +16,7 @@ leg2 = Leg(motor_manager, 21, 22, hip_inverted=True, knee_inverted=True, hip_off
 leg3 = Leg(motor_manager, 31, 32, hip_inverted=False, knee_inverted=False, hip_offset=0, knee_offset=0)
 leg4 = Leg(motor_manager, 41, 42, hip_inverted=True, knee_inverted= True, hip_offset=0, knee_offset=0)
 
-telemetry_frequency = 100
+telemetry_frequency = 500
 
 initialization_complete = False
 program_active = True
@@ -72,7 +72,7 @@ def send_telemetry():
                 # print(f"Telemetry Frequency: {1/curr_period:.1f}")
                 # print(f"Telemetry Period: {curr_period:.1f}")
                 # start1 = time.perf_counter()
-                telemetry_data = motor_manager.get_telemetry_data()
+                telemetry_data = motor_manager.telemetry_data
                 send_json_message(sock, telemetry_data)
                 # end1 = time.perf_counter()
                 # start2 = time.perf_counter()
@@ -98,7 +98,8 @@ def control():
 
     print("Initializing Standing Trajectory: ")
 
-    standing_trajectory = StandingTrajectory(leg_center_dist, dist_to_ground, filepath="standing_traj.csv")
+    standing_trajectory = StandingTrajectory(leg_center_dist, dist_to_ground)
+    standing_trajectory.save_trajectory(filepath="standing_traj.csv")
     
     # print("Initializing Running Trajectory: ")
     

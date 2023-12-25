@@ -67,8 +67,8 @@ def animate(i):
         return
 
     time_stamp = float(formatted_data["main"]["timestamp"]) - start_time 
-    real_pos = float(formatted_data["motor_12"]["Position"])
-    desired_pos = -float(formatted_data["motor_12"]["Desired Position"])
+    real_pos = float(formatted_data["motor_42"]["Position"])
+    desired_pos = float(formatted_data["motor_42"]["Desired Position"])
     error = desired_pos - real_pos 
 
     print(real_pos)
@@ -96,7 +96,7 @@ def animate(i):
     ax2.set_xlim(x_low_bound, x_up_bound)
     ax3.set_xlim(x_low_bound, x_up_bound)
 
-    a,b = -1, 1
+    a,b = 0, 0.15
     ax1.set_ylim(a,b)
     ax2.set_ylim(a,b)
     ax3.set_ylim(a,b)

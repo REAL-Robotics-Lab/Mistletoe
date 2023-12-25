@@ -29,7 +29,7 @@ class DumpHandler(StreamRequestHandler):
                 data = self.rfile.readline()
                 if not data:
                     break
-                print('received', data.decode().rstrip())
+                # print('received', data.decode().rstrip())
                 # print(type())
                 formatted_data = json.loads(data.decode().rstrip())
         finally:
@@ -50,6 +50,7 @@ style.use('fivethirtyeight')
 
 fig = plt.figure()
 ax1 = fig.add_subplot(1,1,1)
+ax2 = ax1.twinx()
 
 # real pos
 x_1 = []
@@ -67,6 +68,8 @@ start_time = time.time()
 
 leg_center_dist_mm = 175.87
 leg_center_dist = leg_center_dist_mm / 1000
+
+leg_number = 4
 
 def animate(i):
 
@@ -86,39 +89,45 @@ def animate(i):
     
     points_per_frame = 10
 
-    real_pos_1 = float(formatted_data["motor_11"]["Position"])
-    desired_pos_1 = float(formatted_data["motor_11"]["Desired Position"])
+    real_pos_1 = abs(rev_to_radians(float(formatted_data["motor_" + str(leg_number) + "1"]["Position"])))
+    desired_pos_1 = abs(rev_to_radians(float(formatted_data["motor_" + str(leg_number) + "1"]["Desired Position"])))
 
-    real_pos_1_x = math.cos(rev_to_radians(real_pos_1)) * leg_center_dist
-    real_pos_1_y = math.sin(rev_to_radians(real_pos_1)) * leg_center_dist
+    real_pos_1_x = math.cos(real_pos_1) * leg_center_dist
+    real_pos_1_y = math.sin(real_pos_1) * leg_center_dist
 
-    desired_pos_1_x = math.sin(rev_to_radians(desired_pos_1)) * leg_center_dist
-    desired_pos_1_y = math.sin(rev_to_radians(desired_pos_1)) * leg_center_dist
+    desired_pos_1_x = math.cos(desired_pos_1) * leg_center_dist
+    desired_pos_1_y = math.sin(desired_pos_1) * leg_center_dist
 
-    real_pos_2 = float(formatted_data["motor_12"]["Position"])
-    desired_pos_2 = float(formatted_data["motor_12"]["Desired Position"])
+    real_pos_2 = abs(rev_to_radians(float(formatted_data["motor_" + str(leg_number) + "2"]["Position"])))
+    desired_pos_2 = abs(rev_to_radians(float(formatted_data["motor_" + str(leg_number) + "2"]["Desired Position"])))
 
-    real_pos_2_x = math.cos(rev_to_radians(real_pos_2)) * leg_center_dist
-    real_pos_2_y = math.sin(rev_to_radians(real_pos_2)) * leg_center_dist
+    real_pos_2_x = math.cos(real_pos_1 + real_pos_2) * leg_center_dist
+    real_pos_2_y = math.sin(real_pos_1 + real_pos_2) * leg_center_dist
 
-    desired_pos_2_x = math.sin(rev_to_radians(desired_pos_2)) * leg_center_dist
-    desired_pos_2_y = math.sin(rev_to_radians(desired_pos_2)) * leg_center_dist
+    desired_pos_2_x = math.cos(desired_pos_1 + desired_pos_2) * leg_center_dist
+    desired_pos_2_y = math.sin(desired_pos_1 + desired_pos_2) * leg_center_dist
 
     resultant_desired_pos_x = desired_pos_1_x + desired_pos_2_x
-    resultant_desired_pos_y = desired_pos_1_y + desired_pos_2_y
+    resultant_desired_pos_y =  -desired_pos_1_y - desired_pos_2_y
 
     resultant_real_pos_x = real_pos_1_x + real_pos_2_x
-    resultant_real_pos_y = real_pos_1_y + real_pos_2_y
+    resultant_real_pos_y = -real_pos_1_y - real_pos_2_y
 
     # x_1.append(real_pos_1_x)
-    x_1.append(resultant_real_pos_x)
+    x_1.append(resultant_desired_pos_x)
     # y_1.append(real_pos_1_y)
-    y_1.append(resultant_real_pos_y)
+    y_1.append(resultant_desired_pos_y)
 
     # x_3.append(desired_pos_1_x)
-    x_2.append(resultant_desired_pos_x)
+    x_2.append(resultant_real_pos_x)
     # y_3.append(desired_pos_1_y)
-    y_2.append(resultant_desired_pos_y)
+    y_2.append(resultant_real_pos_y)
+
+    if len(x_1) > 100:
+        x_1.pop(0)
+        y_1.pop(0)
+        x_2.pop(0)
+        y_2.pop(0)
 
     # if len(x_1) > points_per_frame:
     #     x_1.pop(0)
@@ -131,11 +140,15 @@ def animate(i):
     #     x_4.pop(0)
 
     ax1.clear()
-
-    ax1.scatter(x_1, y_1,marker="o", color='red')
-    ax1.scatter(x_2, y_2,marker="o", color='blue')
+    ax2.clear()
+    ax1.scatter(x_1, y_1, marker="o", color='red')
+    ax2.scatter(x_2, y_2,marker="o", color='blue')
     # ax1.scatter(x_3, y_3,marker="o", color='blue')
     # ax1.scatter(x_4, y_4,marker="o", color='blue')
+
+    # a,b = 0, 0.15
+    # ax1.set_ylim(a,b)
+    # ax2.set_ylim(a,b)
 
 def render_animation(): 
     anim = animation.FuncAnimation(fig, animate, interval=10)
