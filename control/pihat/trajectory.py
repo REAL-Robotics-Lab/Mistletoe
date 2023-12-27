@@ -143,6 +143,8 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
 
     leg_ik: tinyik.Actuator
 
+    x_offset: float
+
     def __init__(
         self,
         dist_to_ground=None,
@@ -151,7 +153,8 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
         filepath=None,
         num_setpoints=None,
         swing_radius=None,
-        second_ik=False
+        second_ik=False,
+        x_offset = 0
     ) -> None:
         if filepath is not None:
             self.load_trajectory(filepath)
@@ -175,13 +178,14 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
 
             self.dist_to_ground = dist_to_ground
 
+            self.x_offset = x_offset
+
             super().__init__(leg_center_distance_1=leg_center_distance_1, leg_center_distance_2=leg_center_distance_2, second_ik=second_ik)
         
 
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:  
         #offset
-        x_offset = -0.05
-        trajectory_pos_x = 0 + x_offset
+        trajectory_pos_x = 0 + self.x_offset
 
         trajectory_pos_y = self.dist_to_ground  # init @ dist to ground
 
@@ -226,7 +230,7 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
                 # print('theta: ' + str(theta))
                 # print('sin * rad: ' + str(self.swing_radius * math.sin(theta)))
                 # print('should be 0: ' + str(math.sin(theta)))
-                trajectory_pos_x = self.swing_radius * math.cos(theta) + x_offset
+                trajectory_pos_x = self.swing_radius * math.cos(theta) + self.x_offset
 
                 # ik solver breaks for 0,0 for some reason
                 if trajectory_pos_x == 0:
@@ -245,25 +249,28 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
 
                 angles.append(angle)
                 # velocities.append((self.uniform_velocity, self.uniform_velocity))
-            print(f'{trajectory_pos_x}, {trajectory_pos_y}')
+            # print(f'{trajectory_pos_x}, {trajectory_pos_y}')
             # print(theta)
             # print(self.swing_radius * math.sin(theta))
+        # print(angles)
         return angles
 
 
 class StandingTrajectory(PredeterminedTrajectory):
     dist_to_ground: float
     leg_ik: tinyik.Actuator
+    x_offset: float
 
-    def __init__(self, leg_center_distance_1, leg_center_distance_2, dist_to_ground, filepath=None, second_ik=False) -> None:
+    def __init__(self, leg_center_distance_1, leg_center_distance_2, dist_to_ground, filepath=None, second_ik=False, x_offset = 0) -> None:
         self.dist_to_ground = dist_to_ground
         self.leg_ik = tinyik.Actuator(
             ["z", [0.0, leg_center_distance_1, 0.0], "z", [0.0, leg_center_distance_2, 0.0]]
         )
+        self.x_offset = x_offset
         super().__init__(leg_center_distance_1, leg_center_distance_2, filepath=filepath, second_ik=second_ik)
 
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:
-        x = -0.1
+        x = self.x_offset
         y = self.dist_to_ground
 
         # ik solver breaks for x=0 for some reason
@@ -322,8 +329,8 @@ if __name__ == "__main__":
     refresh_rate = 0.05
     dist_to_ground = 0.25
 
-    trajectory = HalfCircleTrajectory(leg_center_distance_1 = leg_center_dist_1_m, leg_center_distance_2=leg_center_dist_2_m, dist_to_ground=dist_to_ground, num_setpoints=20, swing_radius=swing_radius_m, second_ik=True)
-    # trajectory = StandingTrajectory(leg_center_distance_1=leg_center_dist_1_m, leg_center_distance_2=leg_center_dist_2_m, dist_to_ground=dist_to_ground, second_ik=True)
+    # trajectory = HalfCircleTrajectory(leg_center_distance_1 = leg_center_dist_1_m, leg_center_distance_2=leg_center_dist_2_m, dist_to_ground=dist_to_ground, num_setpoints=20, swing_radius=swing_radius_m, second_ik=True, x_offset=0.05)
+    trajectory = StandingTrajectory(leg_center_distance_1=leg_center_dist_1_m, leg_center_distance_2=leg_center_dist_2_m, dist_to_ground=dist_to_ground, second_ik=True,  x_offset=0.05)
     print(trajectory.get_state(1))
     trajectory.plot()
 
