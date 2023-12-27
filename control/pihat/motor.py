@@ -136,7 +136,7 @@ class Motor:
         # Update desired position and control mode
         self.desired_position = position
         
-        # print(f'desired position: {self.desired_position}')
+        print(f'desired position: {self.desired_position}')
         # print(f'real position: {self.position}')
         
         self.control_mode = ControlMode.POSITION_CONTROL
@@ -207,7 +207,8 @@ class MotorManager:
         for motor in self.motors.values():
             self.telemetry_data['motor_' + str(motor.id)] = {
                 'Position': 0,
-                'Desired Position': 0
+                'Desired Position': 0,
+                'Voltage': 0
             }
         self.telemetry_data["main"] = {
             "timestamp": perf_counter()
@@ -229,6 +230,7 @@ class MotorManager:
         for motor in self.motors.values():
             self.telemetry_data['motor_' + str(motor.id)]['Position'] = motor.get_position()
             self.telemetry_data['motor_' + str(motor.id)]['Desired Position'] = motor.desired_position
+            self.telemetry_data['motor_' + str(motor.id)]['Voltage'] = motor.voltage
             self.telemetry_data["main"]["timestamp"] = perf_counter()
         # print(self.telemetry_data)
         
@@ -253,7 +255,7 @@ class MotorManager:
 
         for status in statuses:
             self.motors[status.id].update_status(status)
-            
+        
 
         self.update_telemetry_data()
 

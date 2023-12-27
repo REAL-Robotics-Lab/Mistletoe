@@ -91,8 +91,8 @@ class Leg:
 
         # TODO: should make these pos command params accessible through the constructor or something
 
-        self.hip_motor.set_position(position=(angles[0]), velocity=0, maximum_torque=15, accel_limit=8, velocity_limit=0.5)
-        self.knee_motor.set_position(position=(-1 * angles[1]), velocity=0, maximum_torque=15, accel_limit=8, velocity_limit=0.5)
+        self.hip_motor.set_position(position=(angles[0]), velocity=0, maximum_torque=15, accel_limit=5, velocity_limit=10)
+        self.knee_motor.set_position(position=(angles[1]), velocity=0, maximum_torque=15, accel_limit=5, velocity_limit=10)
         # else:
         #     angles, velocities = self.current_state
 

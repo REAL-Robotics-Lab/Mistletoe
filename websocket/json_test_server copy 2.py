@@ -66,35 +66,32 @@ y_2 = []
 
 start_time = time.time()
 
-leg_center_dist_mm_1 = 175.87
-leg_center_dist_1 = leg_center_dist_mm_1 / 1000
-
-leg_center_dist_mm_2 = 175.87
-leg_center_dist_2 = leg_center_dist_mm_2 / 1000
+leg_center_dist_mm = 175.87
+leg_center_dist = leg_center_dist_mm / 1000
 
 leg_number = 1
 
 def animate(i):
         
-    def calculate_endpoints(formatted_data, leg_number, leg_center_dist_1, leg_center_dist_2):
+    def calculate_endpoints(formatted_data, leg_number, leg_center_dist):
         
         real_pos_1 = abs(rev_to_radians(float(formatted_data["motor_" + str(leg_number) + "1"]["Position"])))
         desired_pos_1 = abs(rev_to_radians(float(formatted_data["motor_" + str(leg_number) + "1"]["Desired Position"])))
 
-        real_pos_1_x = math.cos(real_pos_1) * leg_center_dist_1
-        real_pos_1_y = math.sin(real_pos_1) * leg_center_dist_1
+        real_pos_1_x = math.cos(real_pos_1) * leg_center_dist
+        real_pos_1_y = math.sin(real_pos_1) * leg_center_dist
 
-        desired_pos_1_x = math.cos(desired_pos_1) * leg_center_dist_1
-        desired_pos_1_y = math.sin(desired_pos_1) * leg_center_dist_1
+        desired_pos_1_x = math.cos(desired_pos_1) * leg_center_dist
+        desired_pos_1_y = math.sin(desired_pos_1) * leg_center_dist
 
         real_pos_2 = abs(rev_to_radians(float(formatted_data["motor_" + str(leg_number) + "2"]["Position"])))
         desired_pos_2 = abs(rev_to_radians(float(formatted_data["motor_" + str(leg_number) + "2"]["Desired Position"])))
 
-        real_pos_2_x = math.cos(real_pos_1 + real_pos_2) * leg_center_dist_2
-        real_pos_2_y = math.sin(real_pos_1 + real_pos_2) * leg_center_dist_2
+        real_pos_2_x = math.cos(real_pos_1 + real_pos_2) * leg_center_dist
+        real_pos_2_y = math.sin(real_pos_1 + real_pos_2) * leg_center_dist
 
-        desired_pos_2_x = math.cos(desired_pos_1 + desired_pos_2) * leg_center_dist_2
-        desired_pos_2_y = math.sin(desired_pos_1 + desired_pos_2) * leg_center_dist_2
+        desired_pos_2_x = math.cos(desired_pos_1 + desired_pos_2) * leg_center_dist
+        desired_pos_2_y = math.sin(desired_pos_1 + desired_pos_2) * leg_center_dist
 
         resultant_desired_pos_x = desired_pos_1_x + desired_pos_2_x
         resultant_desired_pos_y =  -desired_pos_1_y - desired_pos_2_y
@@ -145,24 +142,23 @@ def animate(i):
     # resultant_real_pos_x = real_pos_1_x + real_pos_2_x
     # resultant_real_pos_y = -real_pos_1_y - real_pos_2_y
 
-    resultant_desired_pos_x_1, resultant_desired_pos_y_1, resultant_real_pos_x_1, resultant_real_pos_y_1 = calculate_endpoints(formatted_data, 2, leg_center_dist_1, leg_center_dist_2)
-    resultant_desired_pos_x_3, resultant_desired_pos_y_3, resultant_real_pos_x_3, resultant_real_pos_y_3 = calculate_endpoints(formatted_data, 3, leg_center_dist_1, leg_center_dist_2)
+    resultant_desired_pos_x_1, resultant_desired_pos_y_1, resultant_real_pos_x_1, resultant_real_pos_y_1 = calculate_endpoints(formatted_data, 2, leg_center_dist)
+    resultant_desired_pos_x_3, resultant_desired_pos_y_3, resultant_real_pos_x_3, resultant_real_pos_y_3 = calculate_endpoints(formatted_data, 3, leg_center_dist)
 
     # x_1.append(real_pos_1_x)
-    x_1.append(resultant_desired_pos_x_1)
+    x_1.append(time_stamp)
     # y_1.append(real_pos_1_y)
-    y_1.append(resultant_desired_pos_y_1)
+    y_1.append(resultant_real_pos_y_1 < -0.27)
 
     # x_3.append(desired_pos_1_x)
-    x_2.append(resultant_real_pos_x_1)
     # y_3.append(desired_pos_1_y)
-    y_2.append(resultant_real_pos_y_1)
+    y_2.append((resultant_real_pos_y_3  < -0.27) * 2)
 
-    if len(x_1) > 10:
-        x_1.pop(0)
-        y_1.pop(0)
-        x_2.pop(0)
-        y_2.pop(0)
+    # if len(x_1) > 10:
+    #     x_1.pop(0)
+    #     y_1.pop(0)
+    #     x_2.pop(0)
+    #     y_2.pop(0)
 
     # if len(x_1) > points_per_frame:
     #     x_1.pop(0)
@@ -174,21 +170,23 @@ def animate(i):
     #     y_3.pop(0)
     #     x_4.pop(0)
 
+    
+    second_frame = 10
+
+    x_up_bound = x_1[-1]
+    x_low_bound = x_1[-1] - second_frame
+
     ax1.clear()
     ax2.clear()
-    ax1.scatter(x_1, y_1, marker="o", color='red')
-    ax2.scatter(x_2, y_2,marker="o", color='blue')
+    ax1.scatter(x_1, y_1, color='red')
+    ax2.scatter(x_1, y_2, color='blue')
     # ax1.scatter(x_3, y_3,marker="o", color='blue')
     # ax1.scatter(x_4, y_4,marker="o", color='blue')
 
-    # a,b = 0, 0.15
-    # ax1.set_ylim(a,b)
-    # ax2.set_ylim(a,b)
-    
-    ax1.set_xlim(-0.15, 0.2)
-    ax2.set_xlim(-0.15, 0.2)
-    ax1.set_ylim(-0.3, 0.05)
-    ax2.set_ylim(-0.3, 0.05)
+    a,b = 0, 4
+    ax1.set_ylim(a,b)
+    ax2.set_ylim(a,b)
+    ax1.set_xlim(x_low_bound, x_up_bound)
 
 def render_animation(): 
     anim = animation.FuncAnimation(fig, animate, interval=10)

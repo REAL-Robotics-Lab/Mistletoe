@@ -45,8 +45,8 @@ style.use('fivethirtyeight')
 
 fig = plt.figure()
 ax1 = fig.add_subplot(1,1,1)
-ax2 = ax1.twinx()
-ax3 = ax1.twinx()
+# ax2 = ax1.twinx()
+# ax3 = ax1.twinx()
 
 x = []
 y_1 = []
@@ -75,9 +75,9 @@ def animate(i):
     print(desired_pos)
 
     x.append(time_stamp)
-    y_1.append(desired_pos)
-    y_2.append(real_pos)
-    y_3.append(error)
+    y_1.append(error)
+    # y_2.append(real_pos)
+    # y_3.append(error)
 
     second_frame = 10
 
@@ -85,21 +85,21 @@ def animate(i):
     x_low_bound = x[-1] - second_frame
 
     ax1.clear()
-    ax2.clear()
-    ax3.clear()
+    # ax2.clear()
+    # ax3.clear()
 
     ax1.plot(x, y_1, color='red')
-    ax2.plot(x, y_2, color='blue')
-    ax3.plot(x, y_3, color='green')
+    # ax2.plot(x, y_2, color='blue')
+    # ax3.plot(x, y_3, color='green')
 
     ax1.set_xlim(x_low_bound, x_up_bound)
-    ax2.set_xlim(x_low_bound, x_up_bound)
-    ax3.set_xlim(x_low_bound, x_up_bound)
+    # ax2.set_xlim(x_low_bound, x_up_bound)
+    # ax3.set_xlim(x_low_bound, x_up_bound)
 
-    a,b = 0, 0.15
-    ax1.set_ylim(a,b)
-    ax2.set_ylim(a,b)
-    ax3.set_ylim(a,b)
+    # a,b = 0, 0.15
+    # ax1.set_ylim(a,b)
+    # ax2.set_ylim(a,b)
+    # ax3.set_ylim(a,b)
 
 def render_animation(): 
     anim = animation.FuncAnimation(fig, animate, interval=10)
