@@ -204,9 +204,9 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
 
                 # ik solver breaks for 0,0 for some reason
                 if trajectory_pos_x == 0:
-                    trajectory_pos_x = 0.0000001
+                    trajectory_pos_x = 0.0001
                 if trajectory_pos_y == 0:
-                    trajectory_pos_y = 0.0000001
+                    trajectory_pos_y = 0.0001
 
                 self.leg_ik.ee = [trajectory_pos_x, trajectory_pos_y, 0]
 
@@ -234,9 +234,9 @@ class HalfCircleTrajectory(PredeterminedTrajectory):
 
                 # ik solver breaks for 0,0 for some reason
                 if trajectory_pos_x == 0:
-                    trajectory_pos_x = 0.0000001
+                    trajectory_pos_x = 0.0001
                 if trajectory_pos_y == 0:
-                    trajectory_pos_y = 0.0000001
+                    trajectory_pos_y = 0.0001
 
                 self.leg_ik.ee = [trajectory_pos_x, trajectory_pos_y, 0]
 
@@ -272,6 +272,9 @@ class StandingTrajectory(PredeterminedTrajectory):
     def generate_trajectory(self) -> tuple[list[tuple], list[tuple]]:
         x = self.x_offset
         y = self.dist_to_ground
+
+        if x == 0:
+            x = 0.0001
 
         # ik solver breaks for x=0 for some reason
         self.leg_ik.ee = [x ,self.dist_to_ground, 0]
@@ -329,8 +332,8 @@ if __name__ == "__main__":
     refresh_rate = 0.05
     dist_to_ground = 0.25
 
-    # trajectory = HalfCircleTrajectory(leg_center_distance_1 = leg_center_dist_1_m, leg_center_distance_2=leg_center_dist_2_m, dist_to_ground=dist_to_ground, num_setpoints=20, swing_radius=swing_radius_m, second_ik=True, x_offset=0.05)
-    trajectory = StandingTrajectory(leg_center_distance_1=leg_center_dist_1_m, leg_center_distance_2=leg_center_dist_2_m, dist_to_ground=dist_to_ground, second_ik=True,  x_offset=0.05)
+    trajectory = HalfCircleTrajectory(leg_center_distance_1 = leg_center_dist_1_m, leg_center_distance_2=leg_center_dist_2_m, dist_to_ground=dist_to_ground, num_setpoints=10, swing_radius=swing_radius_m, second_ik=True, x_offset=0.05)
+    # trajectory = StandingTrajectory(leg_center_distance_1=leg_center_dist_1_m, leg_center_distance_2=leg_center_dist_2_m, dist_to_ground=dist_to_ground, second_ik=True,  x_offset=0.05)
     print(trajectory.get_state(1))
     trajectory.plot()
 

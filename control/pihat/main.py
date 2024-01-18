@@ -12,7 +12,7 @@ from json_test_client import send_json_message
 motor_manager = MotorManager(motor_ids=[11,12,21,22,31,32,41,42], min_voltage=22.25)
 
 leg1 = Leg(motor_manager, 11, 12, hip_inverted=False, knee_inverted=False, hip_offset=0, knee_offset=-0)
-leg2 = Leg(motor_manager, 21, 22, hip_inverted=False, knee_inverted=False, hip_offset=0, knee_offset=0)
+leg2 = Leg(motor_manager, 21, 22, hip_inverted=True, knee_inverted=True, hip_offset=0, knee_offset=0)
 leg3 = Leg(motor_manager, 31, 32, hip_inverted=False, knee_inverted=False, hip_offset=0, knee_offset=0)
 leg4 = Leg(motor_manager, 41, 42, hip_inverted=True, knee_inverted= True, hip_offset=0, knee_offset=0)
 
@@ -21,7 +21,7 @@ telemetry_frequency = 500
 initialization_complete = False
 program_active = True
 
-async def leg_control(frequency: float=50):
+async def leg_control(frequency: float=100):
     global program_active
 
     base_time = time.perf_counter()
@@ -34,12 +34,12 @@ async def leg_control(frequency: float=50):
         current_time = time.perf_counter()
         curr_period = current_time - base_time
         if curr_period >= period:
-            print(f"Period: {curr_period:.5f}")
-            print(f"Frequency: {1/curr_period:.1f}")
-            # leg1.update()
+            # print(f"Period: {curr_period:.5f}")
+            # print(f"Frequency: {1/curr_period:.1f}")
+            leg1.update()
             leg2.update()
-            # leg3.update()
-            # leg4.update()
+            leg3.update()
+            leg4.update()
             await motor_manager.update()
 
             
@@ -98,18 +98,18 @@ def control():
 
     print("Initializing Standing Trajectory: ")
 
-    standing_trajectory = StandingTrajectory(leg_center_dist_1_m, leg_center_dist_2_m, dist_to_ground)
+    standing_trajectory = StandingTrajectory(leg_center_dist_1_m, leg_center_dist_2_m, dist_to_ground, x_offset=0, second_ik=True)
     standing_trajectory.save_trajectory(filepath="standing_traj.csv")
     
     print("Initializing Running Trajectory: ")
     
-    running_trajectory = HalfCircleTrajectory(num_setpoints=100, leg_center_distance_1=leg_center_dist_1_m, leg_center_distance_2=leg_center_dist_2_m, dist_to_ground=dist_to_ground, swing_radius=swing_radius_m)
+    running_trajectory = HalfCircleTrajectory(num_setpoints=100, leg_center_distance_1=leg_center_dist_1_m, leg_center_distance_2=leg_center_dist_2_m, dist_to_ground=dist_to_ground, swing_radius=swing_radius_m, x_offset=0, second_ik=True)
     running_trajectory.save_trajectory('half_circle_traj.csv')
 
-    # leg1.set_trajectory(standing_trajectory)
+    leg1.set_trajectory(standing_trajectory)
     leg2.set_trajectory(standing_trajectory)
-    # leg3.set_trajectory(standing_trajectory)
-    # leg4.set_trajectory(standing_trajectory)
+    leg3.set_trajectory(standing_trajectory)
+    leg4.set_trajectory(standing_trajectory)
 
     print("Initialization complete!")
     initialization_complete = True
@@ -119,16 +119,16 @@ def control():
     while not user_input.lower().startswith(("exit")):
         user_input = input("Input: ").lower()
         if "stand" in user_input:
-            # leg1.set_trajectory(standing_trajectory)
+            leg1.set_trajectory(standing_trajectory)
             leg2.set_trajectory(standing_trajectory)
-            # leg3.set_trajectory(standing_trajectory)
-            # leg4.set_trajectory(standing_trajectory)
+            leg3.set_trajectory(standing_trajectory)
+            leg4.set_trajectory(standing_trajectory)
             print("Current state: standing")
         elif "walk" in user_input:
-            # leg1.set_trajectory(running_trajectory, offset=0, reversed=True)
+            leg1.set_trajectory(running_trajectory, offset=0, reversed=True)
             leg2.set_trajectory(running_trajectory, offset=0.5, reversed=True)
-            # leg3.set_trajectory(running_trajectory, offset=0,  reversed=False)
-            # leg4.set_trajectory(running_trajectory, offset=0.5, reversed=False)
+            leg3.set_trajectory(running_trajectory, offset=0,  reversed=False)
+            leg4.set_trajectory(running_trajectory, offset=0.5, reversed=False)
             print("Current state: walking")
     program_active = False
 

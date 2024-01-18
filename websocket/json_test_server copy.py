@@ -97,7 +97,7 @@ def animate(i):
         desired_pos_2_y = math.sin(desired_pos_1 + desired_pos_2) * leg_center_dist_2
 
         resultant_desired_pos_x = desired_pos_1_x + desired_pos_2_x
-        resultant_desired_pos_y =  -desired_pos_1_y - desired_pos_2_y
+        resultant_desired_pos_y = -desired_pos_1_y - desired_pos_2_y
 
         resultant_real_pos_x = real_pos_1_x + real_pos_2_x
         resultant_real_pos_y = -real_pos_1_y - real_pos_2_y

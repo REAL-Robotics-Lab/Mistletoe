@@ -1,7 +1,7 @@
 import moteus
 import util
 from enum import Enum
-from time import perf_counter
+import time
 
 from WS_client import WSClient
 # from typing import TypeAlias
@@ -136,7 +136,7 @@ class Motor:
         # Update desired position and control mode
         self.desired_position = position
         
-        print(f'desired position: {self.desired_position}')
+        # print(f'desired position: {self.desired_position}')
         # print(f'real position: {self.position}')
         
         self.control_mode = ControlMode.POSITION_CONTROL
@@ -211,7 +211,7 @@ class MotorManager:
                 'Voltage': 0
             }
         self.telemetry_data["main"] = {
-            "timestamp": perf_counter()
+            "timestamp": time.time()
         }
 
 
@@ -231,7 +231,7 @@ class MotorManager:
             self.telemetry_data['motor_' + str(motor.id)]['Position'] = motor.get_position()
             self.telemetry_data['motor_' + str(motor.id)]['Desired Position'] = motor.desired_position
             self.telemetry_data['motor_' + str(motor.id)]['Voltage'] = motor.voltage
-            self.telemetry_data["main"]["timestamp"] = perf_counter()
+            self.telemetry_data["main"]["timestamp"] = time.time()
         # print(self.telemetry_data)
         
     

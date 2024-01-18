@@ -16,9 +16,11 @@ formatted_data = None
 class DumpHandler(StreamRequestHandler):
 
     def handle(self) -> None:
+        global start_time
         global formatted_data
         """receive json packets from client"""
         print('connection from {}:{}'.format(*self.client_address))
+
         try:
             while True:
                 data = self.rfile.readline()
@@ -45,18 +47,21 @@ style.use('fivethirtyeight')
 
 fig = plt.figure()
 ax1 = fig.add_subplot(1,1,1)
-# ax2 = ax1.twinx()
-# ax3 = ax1.twinx()
+ax2 = ax1.twinx()
+ax3 = ax1.twinx()
 
 x = []
 y_1 = []
 y_2 = []
 y_3 = []
 
+
+motor_number = 4
+
 start_time = time.time()
 
 def animate(i):
-
+    global motor_number
     global x
     global y_1
     global y_2
@@ -67,17 +72,14 @@ def animate(i):
         return
 
     time_stamp = float(formatted_data["main"]["timestamp"]) - start_time 
-    real_pos = float(formatted_data["motor_42"]["Position"])
-    desired_pos = float(formatted_data["motor_42"]["Desired Position"])
-    error = desired_pos - real_pos 
-
-    print(real_pos)
-    print(desired_pos)
-
+    print(float(formatted_data["main"]["timestamp"]))
+    real_pos = float(formatted_data[f'motor_{motor_number}2']["Position"])
+    desired_pos = float(formatted_data[f'motor_{motor_number}2']["Desired Position"])
+    error = abs(real_pos) - abs(desired_pos) 
     x.append(time_stamp)
     y_1.append(error)
-    # y_2.append(real_pos)
-    # y_3.append(error)
+    y_2.append(real_pos)
+    y_3.append(desired_pos)
 
     second_frame = 10
 
@@ -85,21 +87,28 @@ def animate(i):
     x_low_bound = x[-1] - second_frame
 
     ax1.clear()
-    # ax2.clear()
-    # ax3.clear()
+    ax2.clear()
+    ax3.clear()
 
-    ax1.plot(x, y_1, color='red')
-    # ax2.plot(x, y_2, color='blue')
-    # ax3.plot(x, y_3, color='green')
+    ax1.plot(x, y_1, color='red', label="Error")
+    ax2.plot(x, y_2, color='blue', label="Real Position")
+    ax3.plot(x, y_3, color='green', label="Target Position")
 
     ax1.set_xlim(x_low_bound, x_up_bound)
-    # ax2.set_xlim(x_low_bound, x_up_bound)
-    # ax3.set_xlim(x_low_bound, x_up_bound)
+    ax2.set_xlim(x_low_bound, x_up_bound)
+    ax3.set_xlim(x_low_bound, x_up_bound)
 
-    # a,b = 0, 0.15
-    # ax1.set_ylim(a,b)
-    # ax2.set_ylim(a,b)
-    # ax3.set_ylim(a,b)
+    lines, labels = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    lines3, labels3 = ax3.get_legend_handles_labels()
+    ax3.legend(lines + lines2 + lines3, labels + labels2 + labels3, loc=0)
+
+    plt.title('Motor ' + str(motor_number))
+
+    a,b = -0.5, 0.5
+    ax1.set_ylim(a,b)
+    ax2.set_ylim(a,b)
+    ax3.set_ylim(a,b)
 
 def render_animation(): 
     anim = animation.FuncAnimation(fig, animate, interval=10)
