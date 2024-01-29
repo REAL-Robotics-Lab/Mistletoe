@@ -15,7 +15,7 @@ DEFAULT_CAMERA_CONFIG = {
     "distance": 2.04,
 }
 
-class FirstCartPole(MujocoEnv, utils.EzPickle):
+class Mistletoe2(MujocoEnv, utils.EzPickle):
     """
     Observation Space
 
@@ -57,7 +57,13 @@ class FirstCartPole(MujocoEnv, utils.EzPickle):
     }
 
 
-    def __init__(self, **kwargs):
+    def __init__(self, lin_vel_reward_weight, ang_vel_penalty_weight, torque_penalty_weight, lin_vel_penalty_weight, **kwargs):
+
+        self.lin_vel_reward_weight = lin_vel_reward_weight
+        self.ang_vel_penalty_weight = ang_vel_penalty_weight
+        self.torque_penalty_weight = torque_penalty_weight
+        self.lin_vel_penalty_weight = lin_vel_penalty_weight
+
         self.window = None
 
         self.prev_lin_velocity = np.zeros(3)
@@ -83,13 +89,22 @@ class FirstCartPole(MujocoEnv, utils.EzPickle):
 
     def step(self, a):
         self.do_simulation(a, self.frame_skip)
+        
+        lin_acceleration = self.data.sensordata.flatten()[0]
+        ang_acceleration = self.data.sensordata.flatten()[1]
+        
+        self.base_lin_velocity = np.add(self.prev_lin_velocity, (lin_acceleration * self.dt))
+        self.base_ang_velocity = np.add(self.prev_ang_velocity, (ang_acceleration * self.dt))
+        
+        self.prev_lin_velocity = self.base_lin_velocity
+        self.prev_ang_velocity = self.base_ang_velocity
 
         observation = self._get_obs()
         terminated = bool(
             not np.isfinite(observation).all() or (np.abs(observation[1]) > 2)
         )
 
-        reward = int(not terminated)
+        reward = self._get_rew()
 
         info = {"reward_survive": reward}
 
@@ -108,7 +123,7 @@ class FirstCartPole(MujocoEnv, utils.EzPickle):
         self.set_state(qpos, qvel)
 
         self.target_lin_velocity_x = np.random.uniform(-1, 1) # TODO: find feasible velocity params
-        self.target_ang_velocity_xy = np.zeros(2)
+        self.target_ang_velocity = np.zeros(3) # we don't want to be turning the base at all
         
         return self._get_obs()
 
@@ -116,27 +131,17 @@ class FirstCartPole(MujocoEnv, utils.EzPickle):
         position = self.data.qpos.flatten()
         velocity = self.data.qvel.flatten()
 
-        lin_acceleration = self.data.sensordata.flatten()[0]
-        ang_acceleration = self.data.sensordata.flatten()[1]
-        
-        self.base_lin_velocity = np.add(self.prev_lin_velocity, (lin_acceleration * self.dt))
-        self.base_ang_velocity = np.add(self.prev_ang_velocity, (ang_acceleration * self.dt))
-        
-        self.prev_lin_velocity = self.base_lin_velocity
-        self.prev_ang_velocity = self.base_ang_velocity
+        # real_velocity = self.data.sensordata.flatten()[2]
 
-        real_velocity = self.data.sensordata.flatten()[2]
+        # print(f'Real velocities: {real_velocity} Calculated velocities: {self.base_lin_velocity}')
 
-        print(f'Real velocities: {real_velocity} Calculated velocities: {self.base_lin_velocity}')
-
+        # same as https://arxiv.org/abs/2203.05194 aside from the ones that aren't relevant to pos control
         return np.concatenate([position, velocity, self.base_lin_velocity, self.base_ang_velocity, self.target_velocity_x])
     
     def _get_rew(self):
 
         base_lin_velocity_x = self.base_lin_velocity[0]
         base_lin_velocity_z = self.base_lin_velocity[2]
-
-        base_ang_velocity_xy = self.base_ang_velocity[0:2]
 
         # base_ang_velocity_z = base_ang_velocity[0]
         # ang_vel_reward = np.exp(-1 * abs(target_ang_velocity_z - base_ang_velocity_z))
@@ -146,8 +151,8 @@ class FirstCartPole(MujocoEnv, utils.EzPickle):
         # going forward is good 
         lin_vel_reward = np.exp((self.target_lin_velocity_x - base_lin_velocity_x)) * self.lin_vel_reward_weight
 
-        # not being parallel to the ground is bad
-        ang_vel_penalty = -1 * np.power(np.linalg.norm(self.target_ang_velocity_xy - base_ang_velocity_xy), 2) * self.ang_vel_penalty_weight
+        # turning at all is bad
+        ang_vel_penalty = -1 * np.power(np.linalg.norm(self.target_ang_velocity - self.base_ang_velocity), 2) * self.ang_vel_penalty_weight
         
         # using too much power is bad
         torque_penalty = -1 * np.power(np.linalg.norm(self.data.qfrc_actuator), 2) * self.torque_penalty_weight
