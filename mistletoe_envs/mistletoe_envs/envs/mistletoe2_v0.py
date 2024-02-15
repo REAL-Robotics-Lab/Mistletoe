@@ -182,7 +182,12 @@ import numpy as np
 from gymnasium import utils
 from gymnasium.envs.mujoco import MujocoEnv
 from gymnasium.spaces import Box
+import os 
 
+import pandas as pd
+from scipy.spatial.transform import Rotation
+
+import math
 
 DEFAULT_CAMERA_CONFIG = {
     "distance": 4.0,
@@ -201,7 +206,7 @@ class Mistletoe2(MujocoEnv, utils.EzPickle):
 
     def __init__(
         self,
-        xml_file="./assets/mistletoe2_v0/quadurdf.xml",
+        xml_file= os.path.join(os.path.dirname(__file__), 'assets', 'mistletoe2_v0', 'quadurdf.xml'),
         ctrl_cost_weight=0.5,
         use_contact_forces=False,
         contact_cost_weight=5e-4,
@@ -288,17 +293,24 @@ class Mistletoe2(MujocoEnv, utils.EzPickle):
             np.square(self.contact_forces)
         )
         return contact_cost
-
+    
     @property
     def is_healthy(self):
         state = self.state_vector()
-        
+          
+        rot = Rotation.from_quat(state[3:7])
+        rot_euler_z = rot.as_euler('xyz', degrees=True)[2]
+        rot_euler_y = rot.as_euler('xyz', degrees=True)[1]
+        # print(abs(rot_euler_z)>20)
+        # print(rot_euler_z)
         min_z, max_z = self._healthy_z_range
-        is_healthy = np.isfinite(state).all() and min_z <= state[2] <= max_z
+        is_healthy = np.isfinite(state).all() and abs(rot_euler_z) <= 150 # and abs(rot_euler_z)<45 and abs(rot_euler_y) < 45 and state[2]<0.2
+        # print(rot_euler_z)
         # print(self.get_body_com("base_link")[2])
         # print(len(state))
         # if not min_z <= state[2] <= max_z:
         #     print('hi')
+
 
         return is_healthy
 
@@ -316,14 +328,27 @@ class Mistletoe2(MujocoEnv, utils.EzPickle):
         xy_velocity = (xy_position_after - xy_position_before) / self.dt
         x_velocity, y_velocity = xy_velocity
 
-        forward_reward = x_velocity
+        forward_reward = np.exp(np.square(1-x_velocity) * 0.25)
         healthy_reward = self.healthy_reward
 
-        rewards = forward_reward + healthy_reward
+        rewards = (forward_reward) + healthy_reward
+
+        # print(forward_reward)
+        # print(healthy_reward)
 
         # print(action)
+        state = self.state_vector()
+          
+        rot = Rotation.from_quat(state[3:7])
+        rot_euler_z = rot.as_euler('xyz', degrees=True)[2]
+        rot_euler_y = rot.as_euler('xyz', degrees=True)[1]
+        ctrl_cost = abs(self.control_cost(action))
+        costs = ctrl_cost+ abs(rot_euler_y) + abs(rot_euler_z)
 
-        costs = ctrl_cost = self.control_cost(action)
+        # print(f'heath: {healthy_reward} forward: {np.exp(forward_reward)} ctrl: {ctrl_cost} y_rot:{rot_euler_y} z_rot: {rot_euler_z}')
+
+
+        # print(f'costs: {costs} rewards: {rewards}')
 
         terminated = self.terminated
         observation = self._get_obs()
@@ -344,6 +369,8 @@ class Mistletoe2(MujocoEnv, utils.EzPickle):
             info["reward_ctrl"] = -contact_cost
 
         reward = rewards - costs
+        # print(reward)
+
 
         if self.render_mode == "human":
             self.render()

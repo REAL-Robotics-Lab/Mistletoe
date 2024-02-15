@@ -1,0 +1,90 @@
+<mujoco model="quadurdf">
+  <compiler angle="radian"/>
+  <asset>
+    <mesh name="base_link" file="base_link.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ACTUATOR_V2__HIP__v3_3" file="ACTUATOR_V2__HIP__v3_3.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ACTUATOR_V2__HIP__v3_1" file="ACTUATOR_V2__HIP__v3_1.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ACTUATOR_V2__HIP__v3_4" file="ACTUATOR_V2__HIP__v3_4.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ACTUATOR_V2__HIP__v3_2" file="ACTUATOR_V2__HIP__v3_2.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ACTUATOR_V2__KNEE__v6_1" file="ACTUATOR_V2__KNEE__v6_1.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ACTUATOR_V2__KNEE__v6_2" file="ACTUATOR_V2__KNEE__v6_2.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ACTUATOR_V2__KNEE__v6_3" file="ACTUATOR_V2__KNEE__v6_3.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ACTUATOR_V2__KNEE__v6_4" file="ACTUATOR_V2__KNEE__v6_4.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ANKLE_v3_1" file="ANKLE_v3_1.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ANKLE_v3_2" file="ANKLE_v3_2.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ANKLE_v3_3" file="ANKLE_v3_3.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="ANKLE_v3_4" file="ANKLE_v3_4.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="6200_MAH_BATTERY_v1_1" file="6200_MAH_BATTERY_v1_1.stl" scale="0.001 0.001 0.001"/>
+    <texture name="grid" type="2d" builtin="checker" rgb1=".1 .2 .3"
+    rgb2=".2 .3 .4" width="300" height="300" mark="edge" markrgb=".2 .3 .4"/>
+    <material name="grid" texture="grid" texrepeat="2 2" texuniform="true"
+    reflectance=".2"/> </asset>
+  <worldbody>
+    <geom name="ground" type="plane" pos="0 0 -.249" size="2 2 .1" material="grid" solimp=".99 .99 .01" solref=".001 1"/>
+    <body name='robot'>
+      <freejoint/>
+      <body name='baselink'>
+        <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="base_link"/>
+      </body>
+      <body name='battery'>
+        <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="6200_MAH_BATTERY_v1_1"/>
+      </body>
+      <body name="ACTUATOR_V2__HIP__v3_3" pos="-0.104 -0.0822 0.034907">
+        <inertial pos="-0.0382683 0.00233144 -0.034911" quat="0.0541169 0.705295 -0.0507367 0.705022" mass="5.04735" diaginertia="0.030841 0.0306039 0.00412905"/>
+        <geom pos="0.104 0.0822 -0.034907" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_3"/>
+        <body name="ACTUATOR_V2__KNEE__v6_4" pos="-0.14687 0.039 -0.034907">
+          <inertial pos="0.068909 0.0609505 3.65818e-06" quat="0.469232 0.460942 0.536234 0.528968" mass="5.55861" diaginertia="0.0346722 0.0346 0.00491082"/>
+          <joint name="Revolute 8" pos="0 0 0" axis="0 -1 0"/>
+          <geom pos="0.25087 0.0432 0" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__KNEE__v6_4"/>
+          <body name="ANKLE_v3_3" pos="0.17587 0.0405 0">
+            <inertial pos="-0.0564645 -0.0216477 -0.0395369" quat="-0.0534461 0.461697 -0.0121465 0.885343" mass="0.925771" diaginertia="0.00253162 0.00252784 0.000105545"/>
+            <joint name="Revolute 11" pos="0 0 0" axis="0 1 0"/>
+            <geom pos="0.075 0.0027 0" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ANKLE_v3_3"/>
+          </body>
+        </body>
+      </body>
+      <body name="ACTUATOR_V2__HIP__v3_1" pos="0.029 -0.0522 0.034907">
+        <inertial pos="0.0382683 -0.0276686 -0.034903" quat="-0.0541169 0.705295 0.0507367 0.705022" mass="5.04735" diaginertia="0.030841 0.0306039 0.00412905"/>
+        <geom pos="-0.029 0.0522 -0.034907" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_1"/>
+        <body name="ACTUATOR_V2__KNEE__v6_1" pos="0.14687 0.009 -0.034907">
+          <inertial pos="-0.068909 0.0609505 -3.65818e-06" quat="0.528968 0.536234 0.460942 0.469232" mass="5.55861" diaginertia="0.0346722 0.0346 0.00491082"/>
+          <joint name="Revolute 5" pos="0 0 0" axis="0 -1 0"/>
+          <geom pos="-0.17587 0.0432 0" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__KNEE__v6_1"/>
+          <body name="ANKLE_v3_1" pos="-0.17587 0.0405 0">
+            <inertial pos="0.0564645 -0.0216477 -0.0395369" quat="-0.0121465 0.885343 -0.0534461 0.461697" mass="0.925771" diaginertia="0.00253162 0.00252784 0.000105545"/>
+            <joint name="Revolute 9" pos="0 0 0" axis="0 -1 0"/>
+            <geom pos="0 0.0027 0" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ANKLE_v3_1"/>
+          </body>
+        </body>
+      </body>
+      <body name="ACTUATOR_V2__HIP__v3_4" pos="-0.104 -0.214 0.034907">
+        <inertial pos="-0.0382683 -0.00233144 -0.034903" quat="-0.0507367 0.705022 0.0541169 0.705295" mass="5.04735" diaginertia="0.030841 0.0306039 0.00412905"/>
+        <geom pos="0.104 0.214 -0.034907" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_4"/>
+        <body name="ACTUATOR_V2__KNEE__v6_3" pos="-0.14687 -0.039 -0.034907">
+          <inertial pos="0.068909 -0.0609505 -3.65818e-06" quat="0.536234 0.528968 0.469232 0.460942" mass="5.55861" diaginertia="0.0346722 0.0346 0.00491082"/>
+          <joint name="Revolute 7" pos="0 0 0" axis="0 1 0"/>
+          <geom pos="0.25087 0.253 0" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__KNEE__v6_3"/>
+          <body name="ANKLE_v3_4" pos="0.17587 -0.0405 0">
+            <inertial pos="-0.0564645 0.0216477 -0.0395369" quat="0.0534461 0.461697 0.0121465 0.885343" mass="0.925771" diaginertia="0.00253162 0.00252784 0.000105545"/>
+            <joint name="Revolute 12" pos="0 0 0" axis="0 -1 0"/>
+            <geom pos="0.075 0.2935 0" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ANKLE_v3_4"/>
+          </body>
+        </body>
+      </body>
+      <body name="ACTUATOR_V2__HIP__v3_2" pos="0.029 -0.214 0.034907">
+        <inertial pos="0.0382683 -0.00233144 -0.034911" quat="0.0507367 0.705022 -0.0541169 0.705295" mass="5.04735" diaginertia="0.030841 0.0306039 0.00412905"/>
+        <geom pos="-0.029 0.214 -0.034907" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_2"/>
+        <body name="ACTUATOR_V2__KNEE__v6_2" pos="0.14687 -0.039 -0.034907">
+          <inertial pos="-0.068909 -0.0609505 3.65818e-06" quat="0.460942 0.469232 0.528968 0.536234" mass="5.55861" diaginertia="0.0346722 0.0346 0.00491082"/>
+          <joint name="Revolute 6" pos="0 0 0" axis="0 1 0"/>
+          <geom pos="-0.17587 0.253 0" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__KNEE__v6_2"/>
+          <body name="ANKLE_v3_2" pos="-0.17587 -0.0405 0">
+            <inertial pos="0.0564645 0.0216477 -0.0395369" quat="0.0121465 0.885343 0.0534461 0.461697" mass="0.925771" diaginertia="0.00253162 0.00252784 0.000105545"/>
+            <joint name="Revolute 10" pos="0 0 0" axis="0 -1 0"/>
+            <geom pos="0 0.2935 0" type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ANKLE_v3_2"/>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

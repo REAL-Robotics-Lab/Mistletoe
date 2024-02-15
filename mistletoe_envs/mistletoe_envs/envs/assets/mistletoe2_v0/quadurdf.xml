@@ -28,10 +28,22 @@
       <body name='base_link' pos='0 0 0'>
         <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="base_link"/>
       </body>
-      <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_3"/>
-      <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_1"/>
-      <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_4"/>
-      <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_2"/>
+      <body name='ACTUATOR_V2__HIP__v3_3'>
+        <inertial pos="-0.0382683 0.00233144 -0.034911" quat="0.0541169 0.705295 -0.0507367 0.705022" mass="5.04735" diaginertia="0.030841 0.0306039 0.00412905"/>
+        <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_3"/>
+      </body>
+      <body name='ACTUATOR_V2__HIP__v3_1'>
+        <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_1"/>
+        <inertial pos="0.0382683 -0.0276686 -0.034903" quat="-0.0541169 0.705295 0.0507367 0.705022" mass="5.04735" diaginertia="0.030841 0.0306039 0.00412905"/>
+      </body>
+      <body name='ACTUATOR_V2__HIP__v3_4'>
+        <inertial pos="-0.0382683 -0.00233144 -0.034903" quat="-0.0507367 0.705022 0.0541169 0.705295" mass="5.04735" diaginertia="0.030841 0.0306039 0.00412905"/>
+        <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_4"/>
+      </body>
+      <body name='ACTUATOR_V2__HIP__v3_2'>
+        <inertial pos="0.0382683 -0.00233144 -0.034911" quat="0.0507367 0.705022 -0.0541169 0.705295" mass="5.04735" diaginertia="0.030841 0.0306039 0.00412905"/>
+        <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="ACTUATOR_V2__HIP__v3_2"/>
+      </body>
       <geom type="mesh" rgba="0.627451 0.627451 0.627451 1" mesh="6200_MAH_BATTERY_v1_1" mass='100'/>
       <body name="ACTUATOR_V2__KNEE__v6_4" pos="-0.25087 -0.0432 0">
         <inertial pos="0.0487287 0.0609505 -0.0487232" quat="0.629585 -0.227699 -0.31275 0.673768" mass="5.55861" diaginertia="0.0346723 0.034601 0.00491076"/>
@@ -77,20 +89,18 @@
   </worldbody>
 
   <actuator>
-    <position gear='10' joint='Revolute 8' name='motor 11' kp='3' kv='0.01' ctrlrange='-22 6'/>
-    <position gear='10' joint='Revolute 11' name='motor 12' kp='3' kv='0.01' ctrlrange='-43 12'/>
-    <position gear='10' joint='Revolute 5' name='motor 31' kp='3' kv='0.01' ctrlrange='-6 22'/>
-    <position gear='10' joint='Revolute 9' name='motor 32' kp='3' kv='0.01' ctrlrange='-43 12'/>
-    <position gear='10' joint='Revolute 7' name='motor 21' kp='3' kv='0.01' ctrlrange='-6 22'/>
-    <position gear='10' joint='Revolute 12' name='motor 22' kp='3' kv='0.01' ctrlrange='-12 43'/>
-    <position gear='10' joint='Revolute 6' name='motor 41' kp='3' kv='0.01' ctrlrange='-22 6'/>
-    <position gear='10' joint='Revolute 10' name='motor 42' kp='3' kv='0.01' ctrlrange='-43 12'/>
+    <position gear='10' joint='Revolute 8' name='motor 11' kp='3' kv='0.01' ctrlrange='-5 5'/>
+    <position gear='10' joint='Revolute 11' name='motor 12' kp='3' kv='0.01' ctrlrange='-5 5'/>
+    <position gear='10' joint='Revolute 5' name='motor 31' kp='3' kv='0.01' ctrlrange='-5 5'/>
+    <position gear='10' joint='Revolute 9' name='motor 32' kp='3' kv='0.01' ctrlrange='-5 5'/>
+    <position gear='10' joint='Revolute 7' name='motor 21' kp='3' kv='0.01' ctrlrange='-5 5'/>
+    <position gear='10' joint='Revolute 12' name='motor 22' kp='3' kv='0.01' ctrlrange='-5 5'/>
+    <position gear='10' joint='Revolute 6' name='motor 41' kp='3' kv='0.01' ctrlrange='-5 5'/>
+    <position gear='10' joint='Revolute 10' name='motor 42' kp='3' kv='0.01' ctrlrange='-5 5'/>
   </actuator>
 
   <sensor>
     <accelerometer site='imu'/>
-    <gyro site='imu'/>
-    <velocimeter site='imu'/>
   </sensor>
 
   <option integrator='implicit'/>

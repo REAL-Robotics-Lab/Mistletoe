@@ -17,6 +17,6 @@ obs = vec_env.reset()
 for i in range(10000):
     action, _state = model.predict(obs, deterministic=True)
     obs, reward, done, info = vec_env.step(action)
-    print(reward)
     # print('test' + str(obs))
     vec_env.render("human")
+    time.sleep(0.01)

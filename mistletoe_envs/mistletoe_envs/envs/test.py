@@ -23,7 +23,7 @@ eval_callback = EvalCallback(eval_env, best_model_save_path=eval_log_dir,
                               render=False)
 
 model = TD3("MlpPolicy", train_env)
-model.learn(total_timesteps=10000, callback=eval_callback)
+model.learn(total_timesteps=100000, callback=eval_callback)
 
 # env = gymnasium.make('firstrl/FirstCartPole-v0', render_mode='rgb_array')
 # model = A2C("MlpPolicy", env, verbose=1)
