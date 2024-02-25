@@ -6,7 +6,7 @@ from stable_baselines3.common.env_util import make_vec_env
 import os
 from stable_baselines3.common.callbacks import EvalCallback
 
-env_id = 'mistletoe_envs/Mistletoe2-v0'
+env_id = 'mistletoe_envs/Mistletoe2-v1'
 n_training_envs = 1 
 n_eval_envs = 5
 
@@ -23,7 +23,7 @@ eval_callback = EvalCallback(eval_env, best_model_save_path=eval_log_dir,
                               render=False)
 
 model = TD3("MlpPolicy", train_env)
-model.learn(total_timesteps=100000, callback=eval_callback)
+model.learn(total_timesteps=5000, callback=eval_callback)
 
 # env = gymnasium.make('firstrl/FirstCartPole-v0', render_mode='rgb_array')
 # model = A2C("MlpPolicy", env, verbose=1)

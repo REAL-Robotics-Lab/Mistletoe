@@ -12,7 +12,7 @@ import time
 
 model = TD3.load("./eval_logs/best_model.zip", print_system_info=True)
 
-vec_env = make_vec_env('mistletoe_envs/Mistletoe2-v0', n_envs=1, seed=3)
+vec_env = make_vec_env('mistletoe_envs/Mistletoe2-v1', n_envs=1, seed=3)
 obs = vec_env.reset()
 for i in range(10000):
     action, _state = model.predict(obs, deterministic=True)
